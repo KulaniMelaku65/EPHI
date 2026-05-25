@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EPHI Training Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a5f3d;
+            --primary-light: #2d8659;
+            --primary-dark: #0f3d28;
+            --secondary: #d4a574;
+            --accent: #e85d3a;
+            --bg-main: #fafaf8;
+            --bg-card: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #5a5a5a;
+            --text-muted: #8a8a8a;
+            --border: #e5e5e5;
+            --success: #2d8659;
+            --warning: #f4a261;
+            --danger: #e85d3a;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        body {
+            font-family: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Layout */
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 0;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: var(--secondary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--primary-dark);
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 20px;
+            font-weight: 400;
+            line-height: 1.2;
+        }
+
+        .logo-subtitle {
+            font-size: 11px;
+            opacity: 0.85;
+            letter-spacing: 0.5px;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--primary-dark);
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .user-role {
+            font-size: 11px;
+            opacity: 0.75;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn {
+            padding: 0.6rem 1.25rem;
+            border: none;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            border: 1.5px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-logout {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            font-size: 13px;
+            padding: 0.5rem 1rem;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+        /* Login Page */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--primary-light) 100%);
+            padding: 2rem;
+        }
+
+        .login-box {
+            background: white;
+            border-radius: 16px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .login-logo {
+            width: 64px;
+            height: 64px;
+            background: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-weight: 700;
+            font-size: 28px;
+            color: white;
+        }
+
+        .login-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 28px;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .login-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26, 95, 61, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .login-btn:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .demo-credentials {
+            margin-top: 2rem;
+            padding: 1.25rem;
+            background: var(--bg-main);
+            border-radius: 8px;
+            border-left: 3px solid var(--secondary);
+        }
+
+        .demo-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        .demo-role {
+            margin-bottom: 0.75rem;
+        }
+
+        .demo-role-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .demo-role-creds {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2.5rem 2rem;
+            width: 100%;
+        }
+
+        .page-header {
+            margin-bottom: 2.5rem;
+        }
+
+        .page-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 32px;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .page-subtitle {
+            font-size: 15px;
+            color: var(--text-secondary);
+        }
+
+        /* Alert */
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: start;
+            gap: 0.75rem;
+            border-left: 3px solid;
+        }
+
+        .alert-warning {
+            background: #fef7ed;
+            border-color: var(--warning);
+            color: #7c4a03;
+        }
+
+        .alert-success {
+            background: #f0f9f4;
+            border-color: var(--success);
+            color: #0f5132;
+        }
+
+        .alert-icon {
+            font-size: 20px;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border-left: 4px solid;
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-card.primary { border-color: var(--primary); }
+        .stat-card.secondary { border-color: var(--secondary); }
+        .stat-card.accent { border-color: var(--accent); }
+        .stat-card.success { border-color: var(--success); }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .stat-change.up { color: var(--danger); }
+        .stat-change.down { color: var(--success); }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.75rem;
+            box-shadow: var(--shadow);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .card-action {
+            font-size: 13px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .card-action:hover {
+            text-decoration: underline;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--bg-main);
+        }
+
+        th {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 1rem;
+            border-top: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: var(--bg-main);
+        }
+
+        /* List */
+        .list-item {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: start;
+            gap: 1rem;
+            transition: background 0.2s;
+        }
+
+        .list-item:hover {
+            background: var(--bg-main);
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+
+        .status-high { background: var(--danger); }
+        .status-medium { background: var(--warning); }
+        .status-low { background: var(--success); }
+
+        .list-content {
+            flex: 1;
+        }
+
+        .list-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+        }
+
+        .list-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .list-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        /* Form Card */
+        .form-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            max-width: 700px;
+        }
+
+        .form-card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        /* Utility */
+        .hidden { display: none; }
+        .text-center { text-align: center; }
+        .mt-2 { margin-top: 2rem; }
+        .mb-2 { margin-bottom: 2rem; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+                align-items: start;
+            }
+
+            .main-content {
+                padding: 1.5rem 1rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .login-box {
+                padding: 2rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Login Page -->
+        <div id="loginPage" class="login-container">
+            <div class="login-box fade-in">
+                <div class="login-header">
+                    <div class="login-logo">EP</div>
+                    <h1 class="login-title">EPHI Training System</h1>
+                    <p class="login-subtitle">Ethiopian Public Health Institute</p>
+                </div>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-input" id="loginEmail" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-input" id="loginPassword" required>
+                    </div>
+
+                    <button type="submit" class="login-btn">Sign In</button>
+                </form>
+
+                <div class="demo-credentials">
+                    <div class="demo-title">Demo Credentials</div>
+                    <div class="demo-role">
+                        <div class="demo-role-name">Admin</div>
+                        <div class="demo-role-creds">admin@ephi.gov.et / admin123</div>
+                    </div>
+                    <div class="demo-role">
+                        <div class="demo-role-name">Trainer</div>
+                        <div class="demo-role-creds">trainer@ephi.gov.et / trainer123</div>
+                    </div>
+                    <div class="demo-role">
+                        <div class="demo-role-name">Trainee</div>
+                        <div class="demo-role-creds">trainee@ephi.gov.et / trainee123</div>
+                    </div>
+                    <div class="demo-role">
+                        <div class="demo-role-name">External User</div>
+                        <div class="demo-role-creds">external@who.int / external123</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main App (Hidden until login) -->
+        <div id="mainApp" class="hidden">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-content">
+                    <div class="logo">
+                        <div class="logo-icon">EP</div>
+                        <div class="logo-text">
+                            <div class="logo-title">EPHI Training System</div>
+                            <div class="logo-subtitle">Training Management & Analytics</div>
+                        </div>
+                    </div>
+
+                    <div class="user-menu">
+                        <div class="user-info">
+                            <div class="user-avatar" id="userAvatar">AD</div>
+                            <div class="user-details">
+                                <div class="user-name" id="userName">Admin User</div>
+                                <div class="user-role" id="userRole">Administrator</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-logout" onclick="logout()">Logout</button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="main-content">
+                <!-- Admin Dashboard -->
+                <div id="adminDashboard" class="hidden">
+                    <div class="page-header">
+                        <h1 class="page-title">Admin Dashboard</h1>
+                        <p class="page-subtitle">Manage training programs, trainers, and system settings</p>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card primary">
+                            <div class="stat-label">Total Trainings</div>
+                            <div class="stat-value">248</div>
+                            <div class="stat-change up">↑ 12% vs last month</div>
+                        </div>
+                        <div class="stat-card secondary">
+                            <div class="stat-label">Active Trainers</div>
+                            <div class="stat-value">67</div>
+                            <div class="stat-change">→ Stable</div>
+                        </div>
+                        <div class="stat-card accent">
+                            <div class="stat-label">Total Trainees</div>
+                            <div class="stat-value">3,421</div>
+                            <div class="stat-change up">↑ 156 this month</div>
+                        </div>
+                        <div class="stat-card success">
+                            <div class="stat-label">Completion Rate</div>
+                            <div class="stat-value">85%</div>
+                            <div class="stat-change down">↑ 3% improvement</div>
+                        </div>
+                    </div>
+
+                    <div class="filters">
+                        <button class="btn btn-primary" onclick="showModal('addTopicModal')">+ Add Training Topic</button>
+                        <button class="btn btn-secondary" onclick="showModal('addTrainerModal')">+ Register Trainer</button>
+                        <button class="btn btn-secondary" onclick="exportData()">Export Data</button>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">Recent Training Sessions</h2>
+                            </div>
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Topic</th>
+                                            <th>Location</th>
+                                            <th>Trainees</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Disease Surveillance Basics</td>
+                                            <td>Jimma, Oromia</td>
+                                            <td>45</td>
+                                            <td><span class="badge badge-success">Completed</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Laboratory Diagnosis</td>
+                                            <td>Gondar, Amhara</td>
+                                            <td>32</td>
+                                            <td><span class="badge badge-warning">In Progress</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Outbreak Response</td>
+                                            <td>Harar, Somali</td>
+                                            <td>28</td>
+                                            <td><span class="badge badge-info">Scheduled</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">Pending Funding Requests</h2>
+                            </div>
+                            <div>
+                                <div class="list-item">
+                                    <div class="status-indicator status-high"></div>
+                                    <div class="list-content">
+                                        <div class="list-title">Emergency Response Training</div>
+                                        <div class="list-subtitle">Requested: 250,000 ETB • 50 participants • 5 days</div>
+                                        <div class="list-meta">Submitted by Dr. Abebe Tadesse • 2 days ago</div>
+                                    </div>
+                                </div>
+                                <div class="list-item">
+                                    <div class="status-indicator status-medium"></div>
+                                    <div class="list-content">
+                                        <div class="list-title">Lab Equipment Training</div>
+                                        <div class="list-subtitle">Requested: 180,000 ETB • 30 participants • 3 days</div>
+                                        <div class="list-meta">Submitted by Dr. Mekdes Alemu • 5 days ago</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-2">
+                        <div class="card-header">
+                            <h2 class="card-title">Training Analytics by Region</h2>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Region</th>
+                                        <th>Trainings</th>
+                                        <th>Participants</th>
+                                        <th>Completion Rate</th>
+                                        <th>Health Facilities</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Oromia</td>
+                                        <td>67</td>
+                                        <td>892</td>
+                                        <td>88%</td>
+                                        <td>23</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Amhara</td>
+                                        <td>54</td>
+                                        <td>721</td>
+                                        <td>85%</td>
+                                        <td>19</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Somali</td>
+                                        <td>42</td>
+                                        <td>567</td>
+                                        <td>82%</td>
+                                        <td>15</td>
+                                    </tr>
+                                    <tr>
+                                        <td>SNNPR</td>
+                                        <td>38</td>
+                                        <td>498</td>
+                                        <td>84%</td>
+                                        <td>14</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tigray</td>
+                                        <td>29</td>
+                                        <td>387</td>
+                                        <td>79%</td>
+                                        <td>11</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Addis Ababa</td>
+                                        <td>18</td>
+                                        <td>356</td>
+                                        <td>91%</td>
+                                        <td>8</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trainer Dashboard -->
+                <div id="trainerDashboard" class="hidden">
+                    <div class="page-header">
+                        <h1 class="page-title">Trainer Dashboard</h1>
+                        <p class="page-subtitle">Manage your training sessions and participants</p>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card primary">
+                            <div class="stat-label">My Trainings</div>
+                            <div class="stat-value">18</div>
+                            <div class="stat-change">This year</div>
+                        </div>
+                        <div class="stat-card secondary">
+                            <div class="stat-label">Total Participants</div>
+                            <div class="stat-value">476</div>
+                            <div class="stat-change">Trained by you</div>
+                        </div>
+                        <div class="stat-card accent">
+                            <div class="stat-label">Upcoming Sessions</div>
+                            <div class="stat-value">3</div>
+                            <div class="stat-change">Next 30 days</div>
+                        </div>
+                        <div class="stat-card success">
+                            <div class="stat-label">Rating</div>
+                            <div class="stat-value">4.8</div>
+                            <div class="stat-change">Out of 5.0</div>
+                        </div>
+                    </div>
+
+                    <div class="filters">
+                        <button class="btn btn-primary" onclick="showModal('createSessionModal')">+ Create Training Session</button>
+                        <button class="btn btn-secondary" onclick="showModal('fundingModal')">Request Funding</button>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">Upcoming Sessions</h2>
+                            </div>
+                            <div>
+                                <div class="list-item">
+                                    <div class="list-content">
+                                        <div class="list-title">Cholera Response Protocol</div>
+                                        <div class="list-subtitle">Addis Ababa Central Hospital</div>
+                                        <div class="list-meta">May 28 - June 1, 2026 • 42 registered / 50 max</div>
+                                    </div>
+                                </div>
+                                <div class="list-item">
+                                    <div class="list-content">
+                                        <div class="list-title">Laboratory Diagnostics</div>
+                                        <div class="list-subtitle">Jimma University Medical Center, Oromia</div>
+                                        <div class="list-meta">June 5 - June 9, 2026 • 35 registered / 45 max</div>
+                                    </div>
+                                </div>
+                                <div class="list-item">
+                                    <div class="list-content">
+                                        <div class="list-title">Data Management Systems</div>
+                                        <div class="list-subtitle">Bahir Dar Hospital, Amhara</div>
+                                        <div class="list-meta">June 15 - June 17, 2026 • 28 registered / 40 max</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">Past Sessions</h2>
+                            </div>
+                            <div>
+                                <div class="list-item">
+                                    <div class="list-content">
+                                        <div class="list-title">Disease Surveillance Training</div>
+                                        <div class="list-subtitle">Gondar Hospital, Amhara</div>
+                                        <div class="list-meta">May 15-19, 2026 • 48 participants • <span class="badge badge-success">Completed</span></div>
+                                    </div>
+                                </div>
+                                <div class="list-item">
+                                    <div class="list-content">
+                                        <div class="list-title">Emergency Outbreak Response</div>
+                                        <div class="list-subtitle">Dire Dawa Health Bureau</div>
+                                        <div class="list-meta">April 22-26, 2026 • 36 participants • <span class="badge badge-success">Completed</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trainee Dashboard -->
+                <div id="traineeDashboard" class="hidden">
+                    <div class="page-header">
+                        <h1 class="page-title">My Training Dashboard</h1>
+                        <p class="page-subtitle">View your trainings and register for new programs</p>
+                    </div>
+
+                    <div class="alert alert-success">
+                        <div class="alert-icon">✓</div>
+                        <div class="alert-content">
+                            <div class="alert-title">Registration Confirmed</div>
+                            <div>You are registered for "Laboratory Diagnostics" starting June 5, 2026</div>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card primary">
+                            <div class="stat-label">Trainings Completed</div>
+                            <div class="stat-value">7</div>
+                        </div>
+                        <div class="stat-card secondary">
+                            <div class="stat-label">Certificates Earned</div>
+                            <div class="stat-value">7</div>
+                        </div>
+                        <div class="stat-card accent">
+                            <div class="stat-label">Upcoming</div>
+                            <div class="stat-value">2</div>
+                        </div>
+                        <div class="stat-card success">
+                            <div class="stat-label">Total Hours</div>
+                            <div class="stat-value">156</div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">Available Trainings</h2>
+                            </div>
+                            <div>
+                                <div class="list-item">
+                                    <div class="list-content">
+                                        <div class="list-title">Emergency Response Management</div>
+                                        <div class="list-subtitle">Dr. Samuel Getachew • Harar Health Bureau</div>
+                                        <div class="list-meta">May 25-29, 2026 • 5 days • 18/30 registered</div>
+                                    </div>
+                                    <button class="btn btn-primary" onclick="showModal('registerModal')">Register</button>
+                                </div>
+                                <div class="list-item">
+                                    <div class="list-content">
+                                        <div class="list-title">Immunization Program Management</div>
+                                        <div class="list-subtitle">Dr. Hiwot Bekele • Mekelle Hospital</div>
+                                        <div class="list-meta">June 10-14, 2026 • 5 days • 24/40 registered</div>
+                                    </div>
+                                    <button class="btn btn-primary" onclick="showModal('registerModal')">Register</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">My Certificates</h2>
+                            </div>
+                            <div>
+                                <div class="list-item">
+                                    <div class="list-content">
+                                        <div class="list-title">Disease Surveillance and Reporting</div>
+                                        <div class="list-subtitle">Completed: May 19, 2026</div>
+                                        <div class="list-meta">Certificate ID: EPHI-2026-DS-1247</div>
+                                    </div>
+                                    <button class="btn btn-secondary">Download</button>
+                                </div>
+                                <div class="list-item">
+                                    <div class="list-content">
+                                        <div class="list-title">Laboratory Quality Assurance</div>
+                                        <div class="list-subtitle">Completed: April 24, 2026</div>
+                                        <div class="list-meta">Certificate ID: EPHI-2026-LQ-1189</div>
+                                    </div>
+                                    <button class="btn btn-secondary">Download</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- External Dashboard -->
+                <div id="externalDashboard" class="hidden">
+                    <div class="page-header">
+                        <h1 class="page-title">Training Analytics</h1>
+                        <p class="page-subtitle">View public training statistics and reports</p>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card primary">
+                            <div class="stat-label">Total Trainings (2026)</div>
+                            <div class="stat-value">248</div>
+                        </div>
+                        <div class="stat-card secondary">
+                            <div class="stat-label">Healthcare Workers Trained</div>
+                            <div class="stat-value">3,421</div>
+                        </div>
+                        <div class="stat-card accent">
+                            <div class="stat-label">Training Hours Delivered</div>
+                            <div class="stat-value">8,940</div>
+                        </div>
+                        <div class="stat-card success">
+                            <div class="stat-label">Health Facilities Reached</div>
+                            <div class="stat-value">142</div>
+                        </div>
+                    </div>
+
+                    <div class="filters">
+                        <select class="form-select">
+                            <option>All Regions</option>
+                            <option>Oromia</option>
+                            <option>Amhara</option>
+                            <option>Somali</option>
+                            <option>SNNPR</option>
+                            <option>Tigray</option>
+                            <option>Addis Ababa</option>
+                        </select>
+                        <select class="form-select">
+                            <option>All Topics</option>
+                            <option>Disease Surveillance</option>
+                            <option>Laboratory Diagnostics</option>
+                            <option>Outbreak Response</option>
+                            <option>Data Management</option>
+                        </select>
+                        <select class="form-select">
+                            <option>Last 30 days</option>
+                            <option>Last 90 days</option>
+                            <option>This Year</option>
+                            <option>All Time</option>
+                        </select>
+                        <button class="btn btn-secondary" onclick="exportData()">Export Report</button>
+                    </div>
+
+                    <div class="card mt-2">
+                        <div class="card-header">
+                            <h2 class="card-title">All Training Sessions</h2>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Topic</th>
+                                        <th>Trainer</th>
+                                        <th>Location</th>
+                                        <th>Date</th>
+                                        <th>Participants</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Disease Surveillance and Reporting</td>
+                                        <td>Dr. Abebe Tadesse</td>
+                                        <td>Jimma, Oromia</td>
+                                        <td>May 15-19, 2026</td>
+                                        <td>48</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Laboratory Quality Assurance</td>
+                                        <td>Dr. Mekdes Alemu</td>
+                                        <td>Gondar, Amhara</td>
+                                        <td>May 20-24, 2026</td>
+                                        <td>32</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Emergency Outbreak Response</td>
+                                        <td>Dr. Samuel Getachew</td>
+                                        <td>Harar, Somali</td>
+                                        <td>May 25-29, 2026</td>
+                                        <td>28</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Data Management Systems</td>
+                                        <td>Dr. Hiwot Bekele</td>
+                                        <td>Mekelle, Tigray</td>
+                                        <td>June 1-5, 2026</td>
+                                        <td>36</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Immunization Program Training</td>
+                                        <td>Dr. Dawit Alemayehu</td>
+                                        <td>Hawassa, SNNPR</td>
+                                        <td>June 8-12, 2026</td>
+                                        <td>42</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // User database (in production, this would be server-side)
+        const users = {
+            'admin@ephi.gov.et': {
+                password: 'admin123',
+                role: 'admin',
+                name: 'Dr. Alemayehu Bekele',
+                avatar: 'AB'
+            },
+            'trainer@ephi.gov.et': {
+                password: 'trainer123',
+                role: 'trainer',
+                name: 'Dr. Abebe Tadesse',
+                avatar: 'AT'
+            },
+            'trainee@ephi.gov.et': {
+                password: 'trainee123',
+                role: 'trainee',
+                name: 'Tigist Mengistu',
+                avatar: 'TM'
+            },
+            'external@who.int': {
+                password: 'external123',
+                role: 'external',
+                name: 'WHO Observer',
+                avatar: 'WO'
+            }
+        };
+
+        let currentUser = null;
+
+        // Login form handler
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            const user = users[email];
+            
+            if (user && user.password === password) {
+                currentUser = { email, ...user };
+                showDashboard();
+            } else {
+                alert('Invalid credentials. Please use one of the demo accounts.');
+            }
+        });
+
+        function showDashboard() {
+            // Hide login, show main app
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            
+            // Update user info in header
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userRole').textContent = currentUser.role.toUpperCase();
+            document.getElementById('userAvatar').textContent = currentUser.avatar;
+            
+            // Hide all dashboards first
+            document.getElementById('adminDashboard').classList.add('hidden');
+            document.getElementById('trainerDashboard').classList.add('hidden');
+            document.getElementById('traineeDashboard').classList.add('hidden');
+            document.getElementById('externalDashboard').classList.add('hidden');
+            
+            // Show appropriate dashboard based on role
+            if (currentUser.role === 'admin') {
+                document.getElementById('adminDashboard').classList.remove('hidden');
+            } else if (currentUser.role === 'trainer') {
+                document.getElementById('trainerDashboard').classList.remove('hidden');
+            } else if (currentUser.role === 'trainee') {
+                document.getElementById('traineeDashboard').classList.remove('hidden');
+            } else if (currentUser.role === 'external') {
+                document.getElementById('externalDashboard').classList.remove('hidden');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('mainApp').classList.add('hidden');
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+
+        function showModal(modalId) {
+            alert('Modal functionality: ' + modalId + '\n\nIn the full implementation, this would open a form modal for:\n- Adding training topics\n- Registering trainers\n- Creating training sessions\n- Submitting funding requests\n- Registering for trainings');
+        }
+
+        function exportData() {
+            alert('Export Data\n\nIn the full implementation, this would:\n- Generate Excel/CSV/PDF reports\n- Include selected filters and date ranges\n- Download the file automatically');
+        }
+    </script>
+</body>
+</html>
