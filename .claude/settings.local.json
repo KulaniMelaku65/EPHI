@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\kmelaku\\\\Desktop\\\\Codes\\\\EPHI\" -Recurse -Force)",
+      "Bash(Select-Object FullName)",
+      "Bash(python init-database.py *)",
+      "Bash(del \"c:\\\\Users\\\\kmelaku\\\\Desktop\\\\Codes\\\\EPHI\\\\database\\\\ephi_training.db\")",
+      "Bash(python -c \"import flask; print\\('Flask OK'\\)\")",
+      "Bash(python -c \"import flask_cors; print\\('CORS OK'\\)\")",
+      "Bash(python -c \"import jwt; print\\('JWT OK'\\)\")"
+    ]
+  }
+}

@@ -16,6 +16,7 @@ CREATE TABLE users (
     education_level TEXT,
     profile_image TEXT,
     is_active BOOLEAN DEFAULT 1,
+    is_verified BOOLEAN DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (health_facility_id) REFERENCES health_facilities(id)
@@ -158,6 +159,18 @@ CREATE TABLE analytics_log (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+-- Password reset / email verification tokens
+CREATE TABLE password_reset_tokens (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    token TEXT UNIQUE NOT NULL,
+    token_type TEXT DEFAULT 'reset' CHECK(token_type IN ('reset', 'verify')),
+    expires_at TIMESTAMP NOT NULL,
+    used BOOLEAN DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
 -- Create indexes for performance
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_role ON users(role);
@@ -201,3 +214,12 @@ INSERT INTO training_sessions (topic_id, trainer_id, health_facility_id, start_d
 (1, 2, 1, '2026-05-15', '2026-05-19', 'completed'),
 (2, 2, 2, '2026-05-20', '2026-05-24', 'in_progress'),
 (3, 2, 3, '2026-05-25', '2026-05-29', 'scheduled');
+
+-- Sample registrations: trainee (id=3) enrolled in sessions 1 & 2
+INSERT INTO training_registrations (session_id, trainee_id, completion_status, certificate_issued, certificate_number) VALUES
+(1, 3, 'completed', 1, 'EPHI-2026-DS-1247'),
+(2, 3, 'enrolled', 0, NULL);
+
+-- Certificate for the completed registration (registration id=1)
+INSERT INTO certificates (registration_id, certificate_number, issue_date) VALUES
+(1, 'EPHI-2026-DS-1247', '2026-05-19');

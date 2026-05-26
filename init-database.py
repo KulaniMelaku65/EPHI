@@ -8,6 +8,7 @@ Works on Windows, Linux, and Mac!
 import sqlite3
 import os
 import sys
+import hashlib
 
 def init_database():
     print("=" * 50)
@@ -35,7 +36,7 @@ def init_database():
     
     # Check if database already exists
     if os.path.exists(db_path):
-        print("⚠ Database already exists!")
+        print("WARNING: Database already exists!")
         response = input("Do you want to recreate it? (yes/no): ").lower()
         if response not in ['yes', 'y']:
             print("Keeping existing database.")
@@ -61,7 +62,19 @@ def init_database():
         
         print("Creating tables...")
         cursor.executescript(schema)
-        
+
+        # Set proper SHA-256 password hashes for demo accounts
+        print("Setting password hashes...")
+        demo_passwords = {
+            'admin@ephi.gov.et': 'admin123',
+            'trainer@ephi.gov.et': 'trainer123',
+            'trainee@ephi.gov.et': 'trainee123',
+            'external@who.int': 'external123',
+        }
+        for email, pwd in demo_passwords.items():
+            h = hashlib.sha256(pwd.encode()).hexdigest()
+            cursor.execute('UPDATE users SET password_hash = ? WHERE email = ?', (h, email))
+
         conn.commit()
         print()
         print("✓ Database created successfully!")

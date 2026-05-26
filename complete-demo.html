@@ -5,12 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EPHI Training Management System</title>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
             --primary: #1a5f3d;
@@ -38,13 +35,9 @@
             line-height: 1.6;
         }
 
-        /* Layout */
-        .app-container {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+        .app-container { min-height: 100vh; display: flex; flex-direction: column; }
 
+        /* ===== HEADER ===== */
         .header {
             background: var(--primary);
             color: white;
@@ -54,7 +47,6 @@
             top: 0;
             z-index: 100;
         }
-
         .header-content {
             max-width: 1400px;
             margin: 0 auto;
@@ -63,1239 +55,1862 @@
             justify-content: space-between;
             align-items: center;
         }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
+        .logo { display: flex; align-items: center; gap: 1rem; }
         .logo-icon {
-            width: 42px;
-            height: 42px;
+            width: 42px; height: 42px;
             background: var(--secondary);
             border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 18px;
-            color: var(--primary-dark);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 18px; color: var(--primary-dark);
         }
-
-        .logo-text {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .logo-title {
-            font-family: 'DM Serif Display', serif;
-            font-size: 20px;
-            font-weight: 400;
-            line-height: 1.2;
-        }
-
-        .logo-subtitle {
-            font-size: 11px;
-            opacity: 0.85;
-            letter-spacing: 0.5px;
-        }
-
-        .user-menu {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
+        .logo-text { display: flex; flex-direction: column; }
+        .logo-title { font-family: 'DM Serif Display', serif; font-size: 20px; font-weight: 400; line-height: 1.2; }
+        .logo-subtitle { font-size: 11px; opacity: 0.85; letter-spacing: 0.5px; }
+        .user-menu { display: flex; align-items: center; gap: 1.5rem; }
+        .user-info { display: flex; align-items: center; gap: 0.75rem; }
         .user-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
+            width: 36px; height: 36px; border-radius: 50%;
             background: var(--secondary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 14px;
-            color: var(--primary-dark);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600; font-size: 14px; color: var(--primary-dark);
         }
+        .user-details { display: flex; flex-direction: column; }
+        .user-name { font-size: 14px; font-weight: 500; }
+        .user-role { font-size: 11px; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        .user-details {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .user-name {
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .user-role {
-            font-size: 11px;
-            opacity: 0.75;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
+        /* ===== BUTTONS ===== */
         .btn {
             padding: 0.6rem 1.25rem;
-            border: none;
-            border-radius: 6px;
-            font-family: inherit;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
+            border: none; border-radius: 6px;
+            font-family: inherit; font-size: 14px; font-weight: 500;
+            cursor: pointer; transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 0.5rem;
         }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: var(--shadow); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .btn-secondary { background: white; color: var(--primary); border: 1.5px solid var(--primary); }
+        .btn-secondary:hover { background: var(--primary); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #c9472a; }
+        .btn-logout { background: rgba(255,255,255,0.15); color: white; font-size: 13px; padding: 0.5rem 1rem; }
+        .btn-logout:hover { background: rgba(255,255,255,0.25); }
+        .btn-sm { padding: 0.35rem 0.75rem; font-size: 12px; }
+        .btn-xs { padding: 0.25rem 0.6rem; font-size: 11px; border-radius: 4px; }
 
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-light);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow);
-        }
-
-        .btn-secondary {
-            background: white;
-            color: var(--primary);
-            border: 1.5px solid var(--primary);
-        }
-
-        .btn-secondary:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-logout {
-            background: rgba(255,255,255,0.15);
-            color: white;
-            font-size: 13px;
-            padding: 0.5rem 1rem;
-        }
-
-        .btn-logout:hover {
-            background: rgba(255,255,255,0.25);
-        }
-
-        /* Login Page */
+        /* ===== LOGIN PAGE ===== */
         .login-container {
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--primary-light) 100%);
             padding: 2rem;
         }
-
         .login-box {
-            background: white;
-            border-radius: 16px;
-            padding: 3rem;
-            width: 100%;
-            max-width: 440px;
+            background: white; border-radius: 16px; padding: 3rem;
+            width: 100%; max-width: 440px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
-
-        .login-header {
-            text-align: center;
-            margin-bottom: 2.5rem;
-        }
-
+        .login-header { text-align: center; margin-bottom: 2.5rem; }
         .login-logo {
-            width: 64px;
-            height: 64px;
-            background: var(--primary);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1rem;
-            font-weight: 700;
-            font-size: 28px;
-            color: white;
+            width: 64px; height: 64px; background: var(--primary); border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 1rem; font-weight: 700; font-size: 28px; color: white;
         }
-
-        .login-title {
-            font-family: 'DM Serif Display', serif;
-            font-size: 28px;
-            margin-bottom: 0.5rem;
-            color: var(--text-primary);
+        .login-title { font-family: 'DM Serif Display', serif; font-size: 28px; margin-bottom: 0.5rem; }
+        .login-subtitle { font-size: 14px; color: var(--text-secondary); }
+        .login-footer {
+            text-align: center; margin-top: 1.25rem;
+            font-size: 13px; color: var(--text-muted);
         }
+        .login-footer a { color: var(--primary); text-decoration: none; font-weight: 500; }
+        .login-footer a:hover { text-decoration: underline; }
 
-        .login-subtitle {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 13px;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            color: var(--text-primary);
-        }
-
+        /* ===== FORMS ===== */
+        .form-group { margin-bottom: 1.5rem; }
+        .form-label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 0.5rem; }
         .form-input, .form-select, .form-textarea {
-            width: 100%;
-            padding: 0.85rem 1rem;
-            border: 1.5px solid var(--border);
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 14px;
-            transition: all 0.2s;
+            width: 100%; padding: 0.85rem 1rem;
+            border: 1.5px solid var(--border); border-radius: 8px;
+            font-family: inherit; font-size: 14px; transition: all 0.2s;
             background: white;
         }
-
         .form-input:focus, .form-select:focus, .form-textarea:focus {
-            outline: none;
-            border-color: var(--primary);
+            outline: none; border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(26, 95, 61, 0.1);
         }
-
-        .form-textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
+        .form-textarea { resize: vertical; min-height: 100px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         .login-btn {
-            width: 100%;
-            padding: 1rem;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
+            width: 100%; padding: 1rem;
+            background: var(--primary); color: white; border: none; border-radius: 8px;
+            font-family: inherit; font-size: 15px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s;
         }
+        .login-btn:hover { background: var(--primary-light); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-        .login-btn:hover {
-            background: var(--primary-light);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-
+        /* ===== DEMO CREDENTIALS ===== */
         .demo-credentials {
-            margin-top: 2rem;
-            padding: 1.25rem;
-            background: var(--bg-main);
-            border-radius: 8px;
-            border-left: 3px solid var(--secondary);
+            margin-top: 2rem; padding: 1.25rem;
+            background: var(--bg-main); border-radius: 8px; border-left: 3px solid var(--secondary);
+        }
+        .demo-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 0.75rem; }
+        .demo-role { margin-bottom: 0.6rem; }
+        .demo-role-name { font-size: 13px; font-weight: 600; color: var(--primary); margin-bottom: 0.2rem; }
+        .demo-role-creds { font-size: 12px; color: var(--text-secondary); font-family: 'Courier New', monospace; cursor: pointer; }
+        .demo-role-creds:hover { color: var(--primary); }
+
+        /* ===== INLINE ALERTS ===== */
+        .inline-error {
+            background: #fee2e2; border: 1px solid #fecaca; color: #991b1b;
+            padding: 0.75rem 1rem; border-radius: 8px; font-size: 13px;
+            margin-bottom: 1rem; text-align: center;
+        }
+        .inline-success {
+            background: #d1fae5; border: 1px solid #a7f3d0; color: #065f46;
+            padding: 0.75rem 1rem; border-radius: 8px; font-size: 13px;
+            margin-bottom: 1rem;
         }
 
-        .demo-title {
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-secondary);
-            margin-bottom: 0.75rem;
-        }
-
-        .demo-role {
-            margin-bottom: 0.75rem;
-        }
-
-        .demo-role-name {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 0.25rem;
-        }
-
-        .demo-role-creds {
-            font-size: 12px;
-            color: var(--text-secondary);
-            font-family: 'Courier New', monospace;
-        }
-
-        /* Main Content */
+        /* ===== MAIN CONTENT ===== */
         .main-content {
-            flex: 1;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2.5rem 2rem;
-            width: 100%;
+            flex: 1; max-width: 1400px; margin: 0 auto;
+            padding: 2.5rem 2rem; width: 100%;
         }
+        .page-header { margin-bottom: 2.5rem; }
+        .page-title { font-family: 'DM Serif Display', serif; font-size: 32px; margin-bottom: 0.5rem; }
+        .page-subtitle { font-size: 15px; color: var(--text-secondary); }
 
-        .page-header {
-            margin-bottom: 2.5rem;
-        }
-
-        .page-title {
-            font-family: 'DM Serif Display', serif;
-            font-size: 32px;
-            margin-bottom: 0.5rem;
-            color: var(--text-primary);
-        }
-
-        .page-subtitle {
-            font-size: 15px;
-            color: var(--text-secondary);
-        }
-
-        /* Alert */
+        /* ===== ALERT BANNER ===== */
         .alert {
-            padding: 1rem 1.25rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: start;
-            gap: 0.75rem;
-            border-left: 3px solid;
+            padding: 1rem 1.25rem; border-radius: 8px; margin-bottom: 1.5rem;
+            display: flex; align-items: start; gap: 0.75rem; border-left: 3px solid;
         }
+        .alert-warning { background: #fef7ed; border-color: var(--warning); color: #7c4a03; }
+        .alert-success { background: #f0f9f4; border-color: var(--success); color: #0f5132; }
+        .alert-info { background: #eff6ff; border-color: #3b82f6; color: #1e40af; }
+        .alert-icon { font-size: 20px; }
+        .alert-content { flex: 1; }
+        .alert-title { font-weight: 600; margin-bottom: 0.25rem; }
 
-        .alert-warning {
-            background: #fef7ed;
-            border-color: var(--warning);
-            color: #7c4a03;
-        }
+        /* ===== FILTERS ===== */
+        .filters { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; align-items: center; }
 
-        .alert-success {
-            background: #f0f9f4;
-            border-color: var(--success);
-            color: #0f5132;
-        }
-
-        .alert-icon {
-            font-size: 20px;
-        }
-
-        .alert-content {
-            flex: 1;
-        }
-
-        .alert-title {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-
-        /* Filters */
-        .filters {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-
-        /* Stats Grid */
+        /* ===== STATS GRID ===== */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2.5rem;
+            gap: 1.5rem; margin-bottom: 2.5rem;
         }
-
         .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-            border-left: 4px solid;
+            background: white; border-radius: 12px; padding: 1.5rem;
+            box-shadow: var(--shadow); border-left: 4px solid;
             transition: transform 0.2s;
         }
-
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
-        }
-
+        .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
         .stat-card.primary { border-color: var(--primary); }
         .stat-card.secondary { border-color: var(--secondary); }
         .stat-card.accent { border-color: var(--accent); }
         .stat-card.success { border-color: var(--success); }
+        .stat-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 0.5rem; font-weight: 500; }
+        .stat-value { font-size: 32px; font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem; }
+        .stat-change { font-size: 12px; font-weight: 500; color: var(--text-muted); }
 
-        .stat-label {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-
-        .stat-value {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 0.25rem;
-        }
-
-        .stat-change {
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .stat-change.up { color: var(--danger); }
-        .stat-change.down { color: var(--success); }
-
-        /* Dashboard Grid */
+        /* ===== DASHBOARD GRID ===== */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
+            gap: 2rem; margin-bottom: 2rem;
         }
-
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.75rem;
-            box-shadow: var(--shadow);
-        }
-
+        .card { background: white; border-radius: 12px; padding: 1.75rem; box-shadow: var(--shadow); }
         .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 1.5rem;
         }
+        .card-title { font-size: 18px; font-weight: 600; }
 
-        .card-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .card-action {
-            font-size: 13px;
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .card-action:hover {
-            text-decoration: underline;
-        }
-
-        /* Table */
-        .table-container {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        thead {
-            background: var(--bg-main);
-        }
-
+        /* ===== TABLE ===== */
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: var(--bg-main); }
         th {
-            text-align: left;
-            padding: 0.75rem 1rem;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            text-align: left; padding: 0.75rem 1rem;
+            font-size: 12px; font-weight: 600; color: var(--text-secondary);
+            text-transform: uppercase; letter-spacing: 0.5px;
         }
+        td { padding: 1rem; border-top: 1px solid var(--border); font-size: 14px; }
+        tr:hover { background: var(--bg-main); }
 
-        td {
-            padding: 1rem;
-            border-top: 1px solid var(--border);
-            font-size: 14px;
-        }
-
-        tr:hover {
-            background: var(--bg-main);
-        }
-
-        /* List */
+        /* ===== LIST ITEMS ===== */
         .list-item {
-            padding: 1.25rem;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: start;
-            gap: 1rem;
-            transition: background 0.2s;
+            padding: 1.25rem; border-bottom: 1px solid var(--border);
+            display: flex; align-items: start; gap: 1rem; transition: background 0.2s;
         }
-
-        .list-item:hover {
-            background: var(--bg-main);
-        }
-
-        .list-item:last-child {
-            border-bottom: none;
-        }
-
-        .status-indicator {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-top: 6px;
-            flex-shrink: 0;
-        }
-
+        .list-item:hover { background: var(--bg-main); }
+        .list-item:last-child { border-bottom: none; }
+        .status-indicator { width: 10px; height: 10px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
         .status-high { background: var(--danger); }
         .status-medium { background: var(--warning); }
         .status-low { background: var(--success); }
+        .list-content { flex: 1; }
+        .list-title { font-weight: 600; margin-bottom: 0.25rem; }
+        .list-subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 0.25rem; }
+        .list-meta { font-size: 12px; color: var(--text-muted); }
+        .list-actions { display: flex; flex-direction: column; gap: 0.4rem; flex-shrink: 0; }
 
-        .list-content {
-            flex: 1;
-        }
-
-        .list-title {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-            color: var(--text-primary);
-        }
-
-        .list-subtitle {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 0.25rem;
-        }
-
-        .list-meta {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        /* Badge */
+        /* ===== BADGE ===== */
         .badge {
-            display: inline-block;
-            padding: 0.35rem 0.75rem;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            display: inline-block; padding: 0.35rem 0.75rem;
+            border-radius: 6px; font-size: 11px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.5px;
         }
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        .badge-info { background: #dbeafe; color: #1e40af; }
+        .badge-secondary { background: #f3f4f6; color: #374151; }
 
-        .badge-success {
-            background: #d1fae5;
-            color: #065f46;
-        }
+        /* ===== CHART ===== */
+        .chart-container { position: relative; height: 260px; }
 
-        .badge-warning {
-            background: #fef3c7;
-            color: #92400e;
-        }
+        /* ===== EMPTY STATE ===== */
+        .empty-state { padding: 2.5rem; text-align: center; color: var(--text-muted); font-size: 14px; }
 
-        .badge-danger {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .badge-info {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        /* Form Card */
-        .form-card {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: var(--shadow);
-            max-width: 700px;
-        }
-
-        .form-card-title {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            color: var(--text-primary);
-        }
-
-        /* Utility */
-        .hidden { display: none; }
-        .text-center { text-align: center; }
+        /* ===== UTILITY ===== */
+        .hidden { display: none !important; }
         .mt-2 { margin-top: 2rem; }
-        .mb-2 { margin-bottom: 2rem; }
+        .mb-1 { margin-bottom: 1rem; }
 
-        /* Responsive */
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 200;
+            display: flex; align-items: center; justify-content: center;
+            padding: 1rem;
+        }
+        .modal-box {
+            background: white; border-radius: 14px; padding: 2rem;
+            width: 100%; max-width: 580px;
+            max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+        }
+        .modal-box.modal-sm { max-width: 420px; }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);
+        }
+        .modal-title { font-size: 18px; font-weight: 600; }
+        .modal-close {
+            background: none; border: none; font-size: 22px; cursor: pointer;
+            color: var(--text-muted); line-height: 1; padding: 4px; border-radius: 4px;
+        }
+        .modal-close:hover { background: var(--bg-main); color: var(--text-primary); }
+        .modal-footer {
+            display: flex; justify-content: flex-end; gap: 0.75rem;
+            margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border);
+        }
+
+        /* ===== TOKEN DISPLAY BOX ===== */
+        .token-box {
+            background: #f0f9f4; border: 2px dashed var(--success);
+            border-radius: 10px; padding: 1.25rem; text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .token-label { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; }
+        .token-value {
+            font-family: 'Courier New', monospace; font-size: 28px; font-weight: 700;
+            color: var(--primary); letter-spacing: 6px;
+        }
+        .token-note { font-size: 12px; color: var(--text-muted); margin-top: 0.5rem; }
+
+        /* ===== TOAST ===== */
+        #toastContainer {
+            position: fixed; bottom: 1.5rem; right: 1.5rem;
+            z-index: 300; display: flex; flex-direction: column; gap: 0.5rem;
+        }
+        .toast {
+            padding: 0.875rem 1.25rem; border-radius: 8px;
+            font-weight: 500; font-size: 14px; max-width: 360px;
+            box-shadow: var(--shadow-lg);
+            animation: toastIn 0.3s ease-out, toastOut 0.3s ease-in 2.7s forwards;
+        }
+        .toast-success { background: var(--primary); color: white; }
+        .toast-error { background: var(--danger); color: white; }
+        .toast-info { background: #1e40af; color: white; }
+        @keyframes toastIn { from { transform: translateX(20px); opacity: 0; } to { transform: none; opacity: 1; } }
+        @keyframes toastOut { from { opacity: 1; } to { opacity: 0; pointer-events: none; } }
+
+        /* ===== VERIFY EMAIL BANNER ===== */
+        .verify-banner {
+            background: #fffbeb; border: 1px solid #fcd34d; color: #92400e;
+            padding: 0.75rem 1.25rem; font-size: 13px;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 1rem;
+        }
+        .verify-banner button { font-size: 12px; padding: 0.3rem 0.75rem; }
+
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
-            .header-content {
-                padding: 1rem;
-                flex-direction: column;
-                gap: 1rem;
-                align-items: start;
-            }
-
-            .main-content {
-                padding: 1.5rem 1rem;
-            }
-
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .login-box {
-                padding: 2rem;
-            }
+            .header-content { padding: 1rem; flex-direction: column; gap: 1rem; align-items: start; }
+            .main-content { padding: 1.5rem 1rem; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .login-box { padding: 2rem; }
+            .modal-box { padding: 1.5rem; }
         }
 
-        /* Animations */
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
-        .fade-in {
-            animation: fadeIn 0.4s ease-out;
-        }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Login Page -->
-        <div id="loginPage" class="login-container">
-            <div class="login-box fade-in">
-                <div class="login-header">
-                    <div class="login-logo">EP</div>
-                    <h1 class="login-title">EPHI Training System</h1>
-                    <p class="login-subtitle">Ethiopian Public Health Institute</p>
+<div class="app-container">
+
+    <!-- ===================== LOGIN PAGE ===================== -->
+    <div id="loginPage" class="login-container">
+        <div class="login-box fade-in">
+            <div class="login-header">
+                <div class="login-logo">EP</div>
+                <h1 class="login-title">EPHI Training System</h1>
+                <p class="login-subtitle">Ethiopian Public Health Institute</p>
+            </div>
+
+            <div id="loginError" class="inline-error hidden"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" id="loginEmail" placeholder="your@email.com" required>
                 </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="loginPassword" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="login-btn" id="loginBtn">Sign In</button>
+            </form>
 
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label class="form-label">Email Address</label>
-                        <input type="email" class="form-input" id="loginEmail" required>
-                    </div>
+            <div class="login-footer">
+                <a href="#" onclick="openForgotPassword(); return false;">Forgot your password?</a>
+            </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Password</label>
-                        <input type="password" class="form-input" id="loginPassword" required>
-                    </div>
-
-                    <button type="submit" class="login-btn">Sign In</button>
-                </form>
-
-                <div class="demo-credentials">
-                    <div class="demo-title">Demo Credentials</div>
-                    <div class="demo-role">
-                        <div class="demo-role-name">Admin</div>
-                        <div class="demo-role-creds">admin@ephi.gov.et / admin123</div>
-                    </div>
-                    <div class="demo-role">
-                        <div class="demo-role-name">Trainer</div>
-                        <div class="demo-role-creds">trainer@ephi.gov.et / trainer123</div>
-                    </div>
-                    <div class="demo-role">
-                        <div class="demo-role-name">Trainee</div>
-                        <div class="demo-role-creds">trainee@ephi.gov.et / trainee123</div>
-                    </div>
-                    <div class="demo-role">
-                        <div class="demo-role-name">External User</div>
-                        <div class="demo-role-creds">external@who.int / external123</div>
-                    </div>
+            <div class="demo-credentials">
+                <div class="demo-title">Demo Credentials (click to fill)</div>
+                <div class="demo-role">
+                    <div class="demo-role-name">Admin</div>
+                    <div class="demo-role-creds" onclick="fillLogin('admin@ephi.gov.et','admin123')">admin@ephi.gov.et / admin123</div>
+                </div>
+                <div class="demo-role">
+                    <div class="demo-role-name">Trainer</div>
+                    <div class="demo-role-creds" onclick="fillLogin('trainer@ephi.gov.et','trainer123')">trainer@ephi.gov.et / trainer123</div>
+                </div>
+                <div class="demo-role">
+                    <div class="demo-role-name">Trainee</div>
+                    <div class="demo-role-creds" onclick="fillLogin('trainee@ephi.gov.et','trainee123')">trainee@ephi.gov.et / trainee123</div>
+                </div>
+                <div class="demo-role">
+                    <div class="demo-role-name">External User</div>
+                    <div class="demo-role-creds" onclick="fillLogin('external@who.int','external123')">external@who.int / external123</div>
                 </div>
             </div>
         </div>
-
-        <!-- Main App (Hidden until login) -->
-        <div id="mainApp" class="hidden">
-            <!-- Header -->
-            <header class="header">
-                <div class="header-content">
-                    <div class="logo">
-                        <div class="logo-icon">EP</div>
-                        <div class="logo-text">
-                            <div class="logo-title">EPHI Training System</div>
-                            <div class="logo-subtitle">Training Management & Analytics</div>
-                        </div>
-                    </div>
-
-                    <div class="user-menu">
-                        <div class="user-info">
-                            <div class="user-avatar" id="userAvatar">AD</div>
-                            <div class="user-details">
-                                <div class="user-name" id="userName">Admin User</div>
-                                <div class="user-role" id="userRole">Administrator</div>
-                            </div>
-                        </div>
-                        <button class="btn btn-logout" onclick="logout()">Logout</button>
-                    </div>
-                </div>
-            </header>
-
-            <main class="main-content">
-                <!-- Admin Dashboard -->
-                <div id="adminDashboard" class="hidden">
-                    <div class="page-header">
-                        <h1 class="page-title">Admin Dashboard</h1>
-                        <p class="page-subtitle">Manage training programs, trainers, and system settings</p>
-                    </div>
-
-                    <div class="stats-grid">
-                        <div class="stat-card primary">
-                            <div class="stat-label">Total Trainings</div>
-                            <div class="stat-value">248</div>
-                            <div class="stat-change up">↑ 12% vs last month</div>
-                        </div>
-                        <div class="stat-card secondary">
-                            <div class="stat-label">Active Trainers</div>
-                            <div class="stat-value">67</div>
-                            <div class="stat-change">→ Stable</div>
-                        </div>
-                        <div class="stat-card accent">
-                            <div class="stat-label">Total Trainees</div>
-                            <div class="stat-value">3,421</div>
-                            <div class="stat-change up">↑ 156 this month</div>
-                        </div>
-                        <div class="stat-card success">
-                            <div class="stat-label">Completion Rate</div>
-                            <div class="stat-value">85%</div>
-                            <div class="stat-change down">↑ 3% improvement</div>
-                        </div>
-                    </div>
-
-                    <div class="filters">
-                        <button class="btn btn-primary" onclick="showModal('addTopicModal')">+ Add Training Topic</button>
-                        <button class="btn btn-secondary" onclick="showModal('addTrainerModal')">+ Register Trainer</button>
-                        <button class="btn btn-secondary" onclick="exportData()">Export Data</button>
-                    </div>
-
-                    <div class="dashboard-grid">
-                        <div class="card">
-                            <div class="card-header">
-                                <h2 class="card-title">Recent Training Sessions</h2>
-                            </div>
-                            <div class="table-container">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Topic</th>
-                                            <th>Location</th>
-                                            <th>Trainees</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Disease Surveillance Basics</td>
-                                            <td>Jimma, Oromia</td>
-                                            <td>45</td>
-                                            <td><span class="badge badge-success">Completed</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Laboratory Diagnosis</td>
-                                            <td>Gondar, Amhara</td>
-                                            <td>32</td>
-                                            <td><span class="badge badge-warning">In Progress</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Outbreak Response</td>
-                                            <td>Harar, Somali</td>
-                                            <td>28</td>
-                                            <td><span class="badge badge-info">Scheduled</span></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-header">
-                                <h2 class="card-title">Pending Funding Requests</h2>
-                            </div>
-                            <div>
-                                <div class="list-item">
-                                    <div class="status-indicator status-high"></div>
-                                    <div class="list-content">
-                                        <div class="list-title">Emergency Response Training</div>
-                                        <div class="list-subtitle">Requested: 250,000 ETB • 50 participants • 5 days</div>
-                                        <div class="list-meta">Submitted by Dr. Abebe Tadesse • 2 days ago</div>
-                                    </div>
-                                </div>
-                                <div class="list-item">
-                                    <div class="status-indicator status-medium"></div>
-                                    <div class="list-content">
-                                        <div class="list-title">Lab Equipment Training</div>
-                                        <div class="list-subtitle">Requested: 180,000 ETB • 30 participants • 3 days</div>
-                                        <div class="list-meta">Submitted by Dr. Mekdes Alemu • 5 days ago</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card mt-2">
-                        <div class="card-header">
-                            <h2 class="card-title">Training Analytics by Region</h2>
-                        </div>
-                        <div class="table-container">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Region</th>
-                                        <th>Trainings</th>
-                                        <th>Participants</th>
-                                        <th>Completion Rate</th>
-                                        <th>Health Facilities</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Oromia</td>
-                                        <td>67</td>
-                                        <td>892</td>
-                                        <td>88%</td>
-                                        <td>23</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Amhara</td>
-                                        <td>54</td>
-                                        <td>721</td>
-                                        <td>85%</td>
-                                        <td>19</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Somali</td>
-                                        <td>42</td>
-                                        <td>567</td>
-                                        <td>82%</td>
-                                        <td>15</td>
-                                    </tr>
-                                    <tr>
-                                        <td>SNNPR</td>
-                                        <td>38</td>
-                                        <td>498</td>
-                                        <td>84%</td>
-                                        <td>14</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Tigray</td>
-                                        <td>29</td>
-                                        <td>387</td>
-                                        <td>79%</td>
-                                        <td>11</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Addis Ababa</td>
-                                        <td>18</td>
-                                        <td>356</td>
-                                        <td>91%</td>
-                                        <td>8</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Trainer Dashboard -->
-                <div id="trainerDashboard" class="hidden">
-                    <div class="page-header">
-                        <h1 class="page-title">Trainer Dashboard</h1>
-                        <p class="page-subtitle">Manage your training sessions and participants</p>
-                    </div>
-
-                    <div class="stats-grid">
-                        <div class="stat-card primary">
-                            <div class="stat-label">My Trainings</div>
-                            <div class="stat-value">18</div>
-                            <div class="stat-change">This year</div>
-                        </div>
-                        <div class="stat-card secondary">
-                            <div class="stat-label">Total Participants</div>
-                            <div class="stat-value">476</div>
-                            <div class="stat-change">Trained by you</div>
-                        </div>
-                        <div class="stat-card accent">
-                            <div class="stat-label">Upcoming Sessions</div>
-                            <div class="stat-value">3</div>
-                            <div class="stat-change">Next 30 days</div>
-                        </div>
-                        <div class="stat-card success">
-                            <div class="stat-label">Rating</div>
-                            <div class="stat-value">4.8</div>
-                            <div class="stat-change">Out of 5.0</div>
-                        </div>
-                    </div>
-
-                    <div class="filters">
-                        <button class="btn btn-primary" onclick="showModal('createSessionModal')">+ Create Training Session</button>
-                        <button class="btn btn-secondary" onclick="showModal('fundingModal')">Request Funding</button>
-                    </div>
-
-                    <div class="dashboard-grid">
-                        <div class="card">
-                            <div class="card-header">
-                                <h2 class="card-title">Upcoming Sessions</h2>
-                            </div>
-                            <div>
-                                <div class="list-item">
-                                    <div class="list-content">
-                                        <div class="list-title">Cholera Response Protocol</div>
-                                        <div class="list-subtitle">Addis Ababa Central Hospital</div>
-                                        <div class="list-meta">May 28 - June 1, 2026 • 42 registered / 50 max</div>
-                                    </div>
-                                </div>
-                                <div class="list-item">
-                                    <div class="list-content">
-                                        <div class="list-title">Laboratory Diagnostics</div>
-                                        <div class="list-subtitle">Jimma University Medical Center, Oromia</div>
-                                        <div class="list-meta">June 5 - June 9, 2026 • 35 registered / 45 max</div>
-                                    </div>
-                                </div>
-                                <div class="list-item">
-                                    <div class="list-content">
-                                        <div class="list-title">Data Management Systems</div>
-                                        <div class="list-subtitle">Bahir Dar Hospital, Amhara</div>
-                                        <div class="list-meta">June 15 - June 17, 2026 • 28 registered / 40 max</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-header">
-                                <h2 class="card-title">Past Sessions</h2>
-                            </div>
-                            <div>
-                                <div class="list-item">
-                                    <div class="list-content">
-                                        <div class="list-title">Disease Surveillance Training</div>
-                                        <div class="list-subtitle">Gondar Hospital, Amhara</div>
-                                        <div class="list-meta">May 15-19, 2026 • 48 participants • <span class="badge badge-success">Completed</span></div>
-                                    </div>
-                                </div>
-                                <div class="list-item">
-                                    <div class="list-content">
-                                        <div class="list-title">Emergency Outbreak Response</div>
-                                        <div class="list-subtitle">Dire Dawa Health Bureau</div>
-                                        <div class="list-meta">April 22-26, 2026 • 36 participants • <span class="badge badge-success">Completed</span></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Trainee Dashboard -->
-                <div id="traineeDashboard" class="hidden">
-                    <div class="page-header">
-                        <h1 class="page-title">My Training Dashboard</h1>
-                        <p class="page-subtitle">View your trainings and register for new programs</p>
-                    </div>
-
-                    <div class="alert alert-success">
-                        <div class="alert-icon">✓</div>
-                        <div class="alert-content">
-                            <div class="alert-title">Registration Confirmed</div>
-                            <div>You are registered for "Laboratory Diagnostics" starting June 5, 2026</div>
-                        </div>
-                    </div>
-
-                    <div class="stats-grid">
-                        <div class="stat-card primary">
-                            <div class="stat-label">Trainings Completed</div>
-                            <div class="stat-value">7</div>
-                        </div>
-                        <div class="stat-card secondary">
-                            <div class="stat-label">Certificates Earned</div>
-                            <div class="stat-value">7</div>
-                        </div>
-                        <div class="stat-card accent">
-                            <div class="stat-label">Upcoming</div>
-                            <div class="stat-value">2</div>
-                        </div>
-                        <div class="stat-card success">
-                            <div class="stat-label">Total Hours</div>
-                            <div class="stat-value">156</div>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-grid">
-                        <div class="card">
-                            <div class="card-header">
-                                <h2 class="card-title">Available Trainings</h2>
-                            </div>
-                            <div>
-                                <div class="list-item">
-                                    <div class="list-content">
-                                        <div class="list-title">Emergency Response Management</div>
-                                        <div class="list-subtitle">Dr. Samuel Getachew • Harar Health Bureau</div>
-                                        <div class="list-meta">May 25-29, 2026 • 5 days • 18/30 registered</div>
-                                    </div>
-                                    <button class="btn btn-primary" onclick="showModal('registerModal')">Register</button>
-                                </div>
-                                <div class="list-item">
-                                    <div class="list-content">
-                                        <div class="list-title">Immunization Program Management</div>
-                                        <div class="list-subtitle">Dr. Hiwot Bekele • Mekelle Hospital</div>
-                                        <div class="list-meta">June 10-14, 2026 • 5 days • 24/40 registered</div>
-                                    </div>
-                                    <button class="btn btn-primary" onclick="showModal('registerModal')">Register</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-header">
-                                <h2 class="card-title">My Certificates</h2>
-                            </div>
-                            <div>
-                                <div class="list-item">
-                                    <div class="list-content">
-                                        <div class="list-title">Disease Surveillance and Reporting</div>
-                                        <div class="list-subtitle">Completed: May 19, 2026</div>
-                                        <div class="list-meta">Certificate ID: EPHI-2026-DS-1247</div>
-                                    </div>
-                                    <button class="btn btn-secondary">Download</button>
-                                </div>
-                                <div class="list-item">
-                                    <div class="list-content">
-                                        <div class="list-title">Laboratory Quality Assurance</div>
-                                        <div class="list-subtitle">Completed: April 24, 2026</div>
-                                        <div class="list-meta">Certificate ID: EPHI-2026-LQ-1189</div>
-                                    </div>
-                                    <button class="btn btn-secondary">Download</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- External Dashboard -->
-                <div id="externalDashboard" class="hidden">
-                    <div class="page-header">
-                        <h1 class="page-title">Training Analytics</h1>
-                        <p class="page-subtitle">View public training statistics and reports</p>
-                    </div>
-
-                    <div class="stats-grid">
-                        <div class="stat-card primary">
-                            <div class="stat-label">Total Trainings (2026)</div>
-                            <div class="stat-value">248</div>
-                        </div>
-                        <div class="stat-card secondary">
-                            <div class="stat-label">Healthcare Workers Trained</div>
-                            <div class="stat-value">3,421</div>
-                        </div>
-                        <div class="stat-card accent">
-                            <div class="stat-label">Training Hours Delivered</div>
-                            <div class="stat-value">8,940</div>
-                        </div>
-                        <div class="stat-card success">
-                            <div class="stat-label">Health Facilities Reached</div>
-                            <div class="stat-value">142</div>
-                        </div>
-                    </div>
-
-                    <div class="filters">
-                        <select class="form-select">
-                            <option>All Regions</option>
-                            <option>Oromia</option>
-                            <option>Amhara</option>
-                            <option>Somali</option>
-                            <option>SNNPR</option>
-                            <option>Tigray</option>
-                            <option>Addis Ababa</option>
-                        </select>
-                        <select class="form-select">
-                            <option>All Topics</option>
-                            <option>Disease Surveillance</option>
-                            <option>Laboratory Diagnostics</option>
-                            <option>Outbreak Response</option>
-                            <option>Data Management</option>
-                        </select>
-                        <select class="form-select">
-                            <option>Last 30 days</option>
-                            <option>Last 90 days</option>
-                            <option>This Year</option>
-                            <option>All Time</option>
-                        </select>
-                        <button class="btn btn-secondary" onclick="exportData()">Export Report</button>
-                    </div>
-
-                    <div class="card mt-2">
-                        <div class="card-header">
-                            <h2 class="card-title">All Training Sessions</h2>
-                        </div>
-                        <div class="table-container">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Topic</th>
-                                        <th>Trainer</th>
-                                        <th>Location</th>
-                                        <th>Date</th>
-                                        <th>Participants</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Disease Surveillance and Reporting</td>
-                                        <td>Dr. Abebe Tadesse</td>
-                                        <td>Jimma, Oromia</td>
-                                        <td>May 15-19, 2026</td>
-                                        <td>48</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Laboratory Quality Assurance</td>
-                                        <td>Dr. Mekdes Alemu</td>
-                                        <td>Gondar, Amhara</td>
-                                        <td>May 20-24, 2026</td>
-                                        <td>32</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Emergency Outbreak Response</td>
-                                        <td>Dr. Samuel Getachew</td>
-                                        <td>Harar, Somali</td>
-                                        <td>May 25-29, 2026</td>
-                                        <td>28</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Data Management Systems</td>
-                                        <td>Dr. Hiwot Bekele</td>
-                                        <td>Mekelle, Tigray</td>
-                                        <td>June 1-5, 2026</td>
-                                        <td>36</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Immunization Program Training</td>
-                                        <td>Dr. Dawit Alemayehu</td>
-                                        <td>Hawassa, SNNPR</td>
-                                        <td>June 8-12, 2026</td>
-                                        <td>42</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
     </div>
 
-    <script>
-        // User database (in production, this would be server-side)
-        const users = {
-            'admin@ephi.gov.et': {
-                password: 'admin123',
-                role: 'admin',
-                name: 'Dr. Alemayehu Bekele',
-                avatar: 'AB'
-            },
-            'trainer@ephi.gov.et': {
-                password: 'trainer123',
-                role: 'trainer',
-                name: 'Dr. Abebe Tadesse',
-                avatar: 'AT'
-            },
-            'trainee@ephi.gov.et': {
-                password: 'trainee123',
-                role: 'trainee',
-                name: 'Tigist Mengistu',
-                avatar: 'TM'
-            },
-            'external@who.int': {
-                password: 'external123',
-                role: 'external',
-                name: 'WHO Observer',
-                avatar: 'WO'
-            }
+    <!-- ===================== MAIN APP ===================== -->
+    <div id="mainApp" class="hidden">
+
+        <!-- Verify Email Banner -->
+        <div id="verifyBanner" class="verify-banner hidden">
+            <span>Your email address is not verified. Verify it to ensure account security.</span>
+            <div style="display:flex;gap:.5rem">
+                <button class="btn btn-secondary btn-sm" onclick="sendVerification()">Send Verification Code</button>
+                <button class="btn btn-primary btn-sm" onclick="openModal('verifyEmailModal')">Enter Code</button>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">EP</div>
+                    <div class="logo-text">
+                        <div class="logo-title">EPHI Training System</div>
+                        <div class="logo-subtitle">Training Management &amp; Analytics</div>
+                    </div>
+                </div>
+                <div class="user-menu">
+                    <div class="user-info">
+                        <div class="user-avatar" id="userAvatar">AD</div>
+                        <div class="user-details">
+                            <div class="user-name" id="userName">User</div>
+                            <div class="user-role" id="userRole">Role</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-logout" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+
+            <!-- ===== ADMIN DASHBOARD ===== -->
+            <div id="adminDashboard" class="hidden fade-in">
+                <div class="page-header">
+                    <h1 class="page-title">Admin Dashboard</h1>
+                    <p class="page-subtitle">Manage training programs, trainers, and system settings</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card primary">
+                        <div class="stat-label">Total Trainings</div>
+                        <div class="stat-value" id="admin-total-trainings">—</div>
+                        <div class="stat-change">Current year</div>
+                    </div>
+                    <div class="stat-card secondary">
+                        <div class="stat-label">Active Trainers</div>
+                        <div class="stat-value" id="admin-active-trainers">—</div>
+                        <div class="stat-change">Registered</div>
+                    </div>
+                    <div class="stat-card accent">
+                        <div class="stat-label">Total Trainees</div>
+                        <div class="stat-value" id="admin-total-trainees">—</div>
+                        <div class="stat-change">Enrolled</div>
+                    </div>
+                    <div class="stat-card success">
+                        <div class="stat-label">Completion Rate</div>
+                        <div class="stat-value" id="admin-completion-rate">—</div>
+                        <div class="stat-change">Average</div>
+                    </div>
+                </div>
+
+                <div class="filters">
+                    <button class="btn btn-primary" onclick="openAddTopicModal()">+ Add Training Topic</button>
+                    <button class="btn btn-secondary" onclick="openAddTrainerModal()">+ Register Trainer</button>
+                    <button class="btn btn-secondary" onclick="exportData()">Export CSV</button>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Recent Training Sessions</h2>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Topic</th><th>Location</th><th>Trainees</th><th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-sessions-tbody">
+                                    <tr><td colspan="4" class="empty-state">Loading…</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Pending Funding Requests</h2>
+                        </div>
+                        <div id="funding-requests-list">
+                            <div class="empty-state">Loading…</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-2">
+                    <div class="card-header">
+                        <h2 class="card-title">Training Analytics by Region</h2>
+                    </div>
+                    <div class="dashboard-grid" style="grid-template-columns:3fr 2fr;gap:1.5rem;margin-bottom:0">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Region</th><th>Trainings</th><th>Participants</th><th>Facilities</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="analytics-tbody">
+                                    <tr><td colspan="4" class="empty-state">Loading…</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="regionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== TRAINER DASHBOARD ===== -->
+            <div id="trainerDashboard" class="hidden fade-in">
+                <div class="page-header">
+                    <h1 class="page-title">Trainer Dashboard</h1>
+                    <p class="page-subtitle">Manage your training sessions and participants</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card primary">
+                        <div class="stat-label">My Trainings</div>
+                        <div class="stat-value" id="trainer-my-trainings">—</div>
+                        <div class="stat-change">This year</div>
+                    </div>
+                    <div class="stat-card secondary">
+                        <div class="stat-label">Total Participants</div>
+                        <div class="stat-value" id="trainer-participants">—</div>
+                        <div class="stat-change">Trained by you</div>
+                    </div>
+                    <div class="stat-card accent">
+                        <div class="stat-label">Upcoming Sessions</div>
+                        <div class="stat-value" id="trainer-upcoming">—</div>
+                        <div class="stat-change">Next 30 days</div>
+                    </div>
+                    <div class="stat-card success">
+                        <div class="stat-label">Rating</div>
+                        <div class="stat-value" id="trainer-rating">—</div>
+                        <div class="stat-change">Out of 5.0</div>
+                    </div>
+                </div>
+
+                <div class="filters">
+                    <button class="btn btn-primary" onclick="openCreateSession()">+ Create Training Session</button>
+                    <button class="btn btn-secondary" onclick="openFundingModal()">Request Funding</button>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <div class="card-header"><h2 class="card-title">Upcoming &amp; Active Sessions</h2></div>
+                        <div id="trainer-upcoming-list"><div class="empty-state">Loading…</div></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><h2 class="card-title">Past Sessions</h2></div>
+                        <div id="trainer-past-list"><div class="empty-state">Loading…</div></div>
+                    </div>
+                </div>
+
+                <div class="card mt-2">
+                    <div class="card-header"><h2 class="card-title">My Funding Requests</h2></div>
+                    <div id="trainer-funding-list"><div class="empty-state">Loading…</div></div>
+                </div>
+            </div>
+
+            <!-- ===== TRAINEE DASHBOARD ===== -->
+            <div id="traineeDashboard" class="hidden fade-in">
+                <div class="page-header">
+                    <h1 class="page-title">My Training Dashboard</h1>
+                    <p class="page-subtitle">View your trainings and register for new programs</p>
+                </div>
+
+                <div id="trainee-alert" class="alert alert-success hidden">
+                    <div class="alert-icon">✓</div>
+                    <div class="alert-content">
+                        <div class="alert-title">Active Registration</div>
+                        <div id="trainee-alert-text"></div>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card primary">
+                        <div class="stat-label">Trainings Completed</div>
+                        <div class="stat-value" id="trainee-completed">—</div>
+                    </div>
+                    <div class="stat-card secondary">
+                        <div class="stat-label">Certificates Earned</div>
+                        <div class="stat-value" id="trainee-certs">—</div>
+                    </div>
+                    <div class="stat-card accent">
+                        <div class="stat-label">Upcoming</div>
+                        <div class="stat-value" id="trainee-upcoming">—</div>
+                    </div>
+                    <div class="stat-card success">
+                        <div class="stat-label">Training Hours</div>
+                        <div class="stat-value" id="trainee-hours">—</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <div class="card-header"><h2 class="card-title">Available Trainings</h2></div>
+                        <div id="trainee-available-list"><div class="empty-state">Loading…</div></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><h2 class="card-title">My Certificates</h2></div>
+                        <div id="trainee-certs-list"><div class="empty-state">Loading…</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== EXTERNAL DASHBOARD ===== -->
+            <div id="externalDashboard" class="hidden fade-in">
+                <div class="page-header">
+                    <h1 class="page-title">Training Analytics</h1>
+                    <p class="page-subtitle">View public training statistics and reports</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card primary">
+                        <div class="stat-label">Total Trainings (2026)</div>
+                        <div class="stat-value" id="ext-total-trainings">—</div>
+                    </div>
+                    <div class="stat-card secondary">
+                        <div class="stat-label">Healthcare Workers Trained</div>
+                        <div class="stat-value" id="ext-hw-trained">—</div>
+                    </div>
+                    <div class="stat-card accent">
+                        <div class="stat-label">Health Facilities Reached</div>
+                        <div class="stat-value" id="ext-facilities">—</div>
+                    </div>
+                </div>
+
+                <div class="filters">
+                    <select class="form-select" id="region-filter" style="width:auto" onchange="filterSessions()">
+                        <option value="">All Regions</option>
+                    </select>
+                    <select class="form-select" id="topic-filter" style="width:auto" onchange="filterSessions()">
+                        <option value="">All Topics</option>
+                    </select>
+                    <button class="btn btn-secondary" onclick="exportData()">Export Report CSV</button>
+                </div>
+
+                <div class="dashboard-grid" style="grid-template-columns:3fr 2fr">
+                    <div class="card">
+                        <div class="card-header"><h2 class="card-title">All Training Sessions</h2></div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Topic</th><th>Trainer</th><th>Location</th>
+                                        <th>Date</th><th>Participants</th><th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="external-sessions-tbody">
+                                    <tr><td colspan="6" class="empty-state">Loading…</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><h2 class="card-title">Sessions by Topic</h2></div>
+                        <div class="chart-container">
+                            <canvas id="topicChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div><!-- /mainApp -->
+
+    <!-- ===================== MODALS ===================== -->
+    <div id="modalOverlay" class="modal-overlay hidden" onclick="handleOverlayClick(event)">
+
+        <!-- FORGOT PASSWORD (2-step) -->
+        <div id="forgotPasswordModal" class="modal-box modal-sm hidden">
+            <div class="modal-header">
+                <h3 class="modal-title" id="fpModalTitle">Forgot Password</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+
+            <!-- Step 1: Enter email -->
+            <div id="fpStep1">
+                <p style="font-size:14px;color:var(--text-secondary);margin-bottom:1.5rem">
+                    Enter your registered email address and we will send you a reset code.
+                </p>
+                <div id="fpStep1Error" class="inline-error hidden"></div>
+                <form onsubmit="submitForgotPassword(event)">
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" id="fpEmail" class="form-input" required placeholder="your@email.com">
+                    </div>
+                    <div class="modal-footer" style="border:none;padding:0;margin-top:0;justify-content:space-between">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="fpSendBtn">Send Reset Code</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Step 2: Enter code + new password -->
+            <div id="fpStep2" class="hidden">
+                <div id="fpTokenBox" class="token-box hidden">
+                    <div class="token-label">Your Reset Code (Demo Mode)</div>
+                    <div class="token-value" id="fpTokenDisplay">--------</div>
+                    <div class="token-note">Email is not configured. Copy this code to reset your password.</div>
+                </div>
+                <div id="fpStep2Error" class="inline-error hidden"></div>
+                <form onsubmit="submitResetPassword(event)">
+                    <input type="hidden" id="fpEmail2">
+                    <div class="form-group">
+                        <label class="form-label">Reset Code</label>
+                        <input type="text" id="fpToken" class="form-input" required
+                               placeholder="Enter the 8-character code"
+                               style="font-family:monospace;letter-spacing:4px;font-size:18px;text-transform:uppercase">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">New Password</label>
+                        <input type="password" id="fpNewPassword" class="form-input" required
+                               minlength="8" placeholder="At least 8 characters">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label">Confirm New Password</label>
+                        <input type="password" id="fpConfirmPassword" class="form-input" required
+                               minlength="8" placeholder="Repeat new password">
+                    </div>
+                    <div class="modal-footer" style="border:none;padding:0.75rem 0 0;margin-top:0;justify-content:space-between">
+                        <button type="button" class="btn btn-secondary" onclick="backToFpStep1()">Back</button>
+                        <button type="submit" class="btn btn-primary" id="fpResetBtn">Reset Password</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- VERIFY EMAIL -->
+        <div id="verifyEmailModal" class="modal-box modal-sm hidden">
+            <div class="modal-header">
+                <h3 class="modal-title">Verify Email</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="veTokenBox" class="token-box hidden">
+                <div class="token-label">Verification Code (Demo Mode)</div>
+                <div class="token-value" id="veTokenDisplay">--------</div>
+                <div class="token-note">Email not configured. Use this code to verify your account.</div>
+            </div>
+            <div id="veError" class="inline-error hidden"></div>
+            <form onsubmit="submitVerifyEmail(event)">
+                <div class="form-group">
+                    <label class="form-label">Verification Code</label>
+                    <input type="text" id="veToken" class="form-input" required
+                           placeholder="8-character code from your email"
+                           style="font-family:monospace;letter-spacing:4px;font-size:18px;text-transform:uppercase">
+                </div>
+                <div class="modal-footer" style="border:none;padding:0;margin-top:0;justify-content:space-between">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Verify Email</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- ADD TRAINING TOPIC (admin) -->
+        <div id="addTopicModal" class="modal-box hidden">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Training Topic</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form onsubmit="submitAddTopic(event)">
+                <div class="form-group">
+                    <label class="form-label">Topic Title *</label>
+                    <input type="text" name="topicTitle" class="form-input" required
+                           placeholder="e.g. Disease Surveillance Basics">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea name="topicDesc" class="form-textarea"
+                              placeholder="Brief description of the training topic…"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Duration (days) *</label>
+                        <input type="number" name="topicDuration" class="form-input" required min="1" max="30" placeholder="5">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category *</label>
+                        <select name="topicCategory" class="form-select" required>
+                            <option value="">Select Category</option>
+                            <option>Disease Surveillance</option>
+                            <option>Laboratory</option>
+                            <option>Emergency Response</option>
+                            <option>Data Management</option>
+                            <option>Immunization</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Topic</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- REGISTER TRAINER (admin) -->
+        <div id="addTrainerModal" class="modal-box hidden">
+            <div class="modal-header">
+                <h3 class="modal-title">Register New Trainer</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="trainerRegResult" class="hidden"></div>
+            <form id="addTrainerForm" onsubmit="submitRegisterTrainer(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Full Name *</label>
+                        <input type="text" name="trainerName" class="form-input" required placeholder="Dr. Firstname Lastname">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email *</label>
+                        <input type="email" name="trainerEmail" class="form-input" required placeholder="trainer@ephi.gov.et">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Password *</label>
+                        <input type="password" name="trainerPassword" class="form-input" required
+                               minlength="8" placeholder="Min. 8 characters">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone</label>
+                        <input type="text" name="trainerPhone" class="form-input" placeholder="+251…">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Position</label>
+                        <input type="text" name="trainerPosition" class="form-input" placeholder="Senior Trainer">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Region</label>
+                        <select name="trainerRegion" class="form-select">
+                            <option value="">Select Region</option>
+                            <option>Addis Ababa</option><option>Oromia</option><option>Amhara</option>
+                            <option>Somali</option><option>SNNPR</option><option>Tigray</option>
+                            <option>Afar</option><option>Benishangul-Gumuz</option><option>Gambela</option>
+                            <option>Harari</option><option>Dire Dawa</option><option>Sidama</option>
+                            <option>Southwest Ethiopia</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Health Facility</label>
+                    <select name="trainerFacility" id="trainerFacility" class="form-select">
+                        <option value="">Select Facility (optional)</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="addTrainerBtn">Register Trainer</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- CREATE TRAINING SESSION (trainer) -->
+        <div id="createSessionModal" class="modal-box hidden">
+            <div class="modal-header">
+                <h3 class="modal-title">Create Training Session</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form onsubmit="submitCreateSession(event)">
+                <div class="form-group">
+                    <label class="form-label">Training Topic *</label>
+                    <select id="sessionTopic" name="sessionTopic" class="form-select" required>
+                        <option value="">Select Topic</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Health Facility *</label>
+                    <select id="sessionFacility" name="sessionFacility" class="form-select" required>
+                        <option value="">Select Facility</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Start Date *</label>
+                        <input type="date" name="sessionStart" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">End Date *</label>
+                        <input type="date" name="sessionEnd" class="form-input" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Maximum Participants</label>
+                    <input type="number" name="sessionMax" class="form-input" value="50" min="1" max="500">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Location Details</label>
+                    <textarea name="sessionDetails" class="form-textarea" rows="3"
+                              placeholder="Room number, building, any special instructions…"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Session</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- REQUEST FUNDING (trainer) -->
+        <div id="fundingModal" class="modal-box hidden">
+            <div class="modal-header">
+                <h3 class="modal-title">Request Funding</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form onsubmit="submitFundingRequest(event)">
+                <div class="form-group">
+                    <label class="form-label">Training Topic *</label>
+                    <select id="fundingTopic" name="fundingTopic" class="form-select" required>
+                        <option value="">Select Topic</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Requested Amount (ETB) *</label>
+                        <input type="number" name="fundingAmount" class="form-input" required min="1000" placeholder="250000">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Number of Participants *</label>
+                        <input type="number" name="fundingParticipants" class="form-input" required min="1" placeholder="50">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Duration (days) *</label>
+                    <input type="number" name="fundingDays" class="form-input" required min="1" max="30" placeholder="5">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Justification *</label>
+                    <textarea name="fundingJustification" class="form-textarea" required
+                              placeholder="Explain the need for this training and expected outcomes…"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Submit Request</button>
+                </div>
+            </form>
+        </div>
+
+    </div><!-- /modalOverlay -->
+
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+
+</div><!-- /app-container -->
+
+<script>
+    // ============================================================
+    //  CONFIG
+    // ============================================================
+    const API_BASE = window.location.protocol === 'file:' ? 'http://localhost:5000' : '';
+
+    // ============================================================
+    //  STATE
+    // ============================================================
+    let authToken   = localStorage.getItem('ephi_token');
+    let currentUser = JSON.parse(localStorage.getItem('ephi_user') || 'null');
+    let cachedSessions   = [];
+    let cachedTopics     = [];
+    let cachedFacilities = [];
+    let regionChartObj   = null;
+    let topicChartObj    = null;
+
+    // ============================================================
+    //  UTILITIES
+    // ============================================================
+    function esc(s) {
+        return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function formatDate(d) {
+        if (!d) return '';
+        return new Date(d).toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'});
+    }
+
+    function statusBadge(status) {
+        const map = {
+            completed:   'badge-success',
+            in_progress: 'badge-warning',
+            scheduled:   'badge-info',
+            cancelled:   'badge-danger',
+            approved:    'badge-success',
+            rejected:    'badge-danger',
+            pending:     'badge-warning',
+            funded:      'badge-success',
         };
+        const label = status.replace('_',' ');
+        return `<span class="badge ${map[status] || 'badge-secondary'}">${esc(label)}</span>`;
+    }
 
-        let currentUser = null;
+    function toast(msg, type = 'success') {
+        const el = document.createElement('div');
+        el.className = `toast toast-${type}`;
+        el.textContent = msg;
+        document.getElementById('toastContainer').appendChild(el);
+        setTimeout(() => el.remove(), 3200);
+    }
 
-        // Login form handler
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            const user = users[email];
-            
-            if (user && user.password === password) {
-                currentUser = { email, ...user };
-                showDashboard();
+    // ============================================================
+    //  API HELPER
+    // ============================================================
+    async function api(method, endpoint, body = null) {
+        const opts = {
+            method,
+            headers: { 'Content-Type': 'application/json' }
+        };
+        if (authToken) opts.headers['Authorization'] = `Bearer ${authToken}`;
+        if (body) opts.body = JSON.stringify(body);
+        const res = await fetch(API_BASE + endpoint, opts);
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+        return data;
+    }
+
+    // ============================================================
+    //  MODAL SYSTEM
+    // ============================================================
+    function openModal(id) {
+        document.getElementById('modalOverlay').classList.remove('hidden');
+        document.querySelectorAll('.modal-box').forEach(m => m.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('modalOverlay').classList.add('hidden');
+        document.querySelectorAll('.modal-box').forEach(m => m.classList.add('hidden'));
+    }
+
+    function handleOverlayClick(e) {
+        if (e.target === document.getElementById('modalOverlay')) closeModal();
+    }
+
+    // ============================================================
+    //  LOGIN / LOGOUT
+    // ============================================================
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email    = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        const btn      = document.getElementById('loginBtn');
+        const errDiv   = document.getElementById('loginError');
+
+        errDiv.classList.add('hidden');
+        btn.disabled = true;
+        btn.textContent = 'Signing in…';
+
+        try {
+            const result = await api('POST', '/api/auth/login', { email, password });
+            authToken   = result.token;
+            currentUser = result.user;
+            localStorage.setItem('ephi_token', authToken);
+            localStorage.setItem('ephi_user', JSON.stringify(currentUser));
+            await showDashboard();
+        } catch (err) {
+            errDiv.textContent = err.message;
+            errDiv.classList.remove('hidden');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Sign In';
+        }
+    });
+
+    function logout() {
+        authToken = currentUser = null;
+        localStorage.removeItem('ephi_token');
+        localStorage.removeItem('ephi_user');
+        document.getElementById('mainApp').classList.add('hidden');
+        document.getElementById('loginPage').classList.remove('hidden');
+        document.getElementById('loginEmail').value = '';
+        document.getElementById('loginPassword').value = '';
+        document.getElementById('loginError').classList.add('hidden');
+    }
+
+    function fillLogin(email, password) {
+        document.getElementById('loginEmail').value = email;
+        document.getElementById('loginPassword').value = password;
+    }
+
+    // ============================================================
+    //  SHOW DASHBOARD
+    // ============================================================
+    async function showDashboard() {
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('mainApp').classList.remove('hidden');
+
+        const name = currentUser.full_name;
+        document.getElementById('userName').textContent = name;
+        document.getElementById('userRole').textContent = currentUser.role.replace('_',' ').toUpperCase();
+        document.getElementById('userAvatar').textContent =
+            name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+
+        // Show email-not-verified banner
+        const verifyBanner = document.getElementById('verifyBanner');
+        if (currentUser.is_verified === false) {
+            verifyBanner.classList.remove('hidden');
+        } else {
+            verifyBanner.classList.add('hidden');
+        }
+
+        ['adminDashboard','trainerDashboard','traineeDashboard','externalDashboard'].forEach(id =>
+            document.getElementById(id).classList.add('hidden')
+        );
+
+        try {
+            [cachedTopics, cachedFacilities] = await Promise.all([
+                api('GET', '/api/topics'),
+                api('GET', '/api/facilities'),
+            ]);
+        } catch (e) { /* non-fatal */ }
+
+        const role = currentUser.role;
+        if (role === 'admin') {
+            document.getElementById('adminDashboard').classList.remove('hidden');
+            await loadAdminDashboard();
+        } else if (role === 'trainer') {
+            document.getElementById('trainerDashboard').classList.remove('hidden');
+            await loadTrainerDashboard();
+        } else if (role === 'trainee') {
+            document.getElementById('traineeDashboard').classList.remove('hidden');
+            await loadTraineeDashboard();
+        } else {
+            document.getElementById('externalDashboard').classList.remove('hidden');
+            await loadExternalDashboard();
+        }
+    }
+
+    // ============================================================
+    //  ADMIN DASHBOARD
+    // ============================================================
+    async function loadAdminDashboard() {
+        try {
+            const [stats, sessions, funding, analytics] = await Promise.all([
+                api('GET', '/api/dashboard/stats'),
+                api('GET', '/api/sessions'),
+                api('GET', '/api/funding-requests'),
+                api('GET', '/api/analytics/by-region'),
+            ]);
+            cachedSessions = sessions;
+
+            document.getElementById('admin-total-trainings').textContent  = stats.total_trainings;
+            document.getElementById('admin-active-trainers').textContent   = stats.active_trainers;
+            document.getElementById('admin-total-trainees').textContent    = stats.total_trainees.toLocaleString();
+            document.getElementById('admin-completion-rate').textContent   = stats.completion_rate + '%';
+
+            // Recent sessions table (last 5, newest first)
+            const tbody = document.getElementById('admin-sessions-tbody');
+            const recent = [...sessions].reverse().slice(0, 5);
+            tbody.innerHTML = recent.map(s => `
+                <tr>
+                    <td>${esc(s.topic_title)}</td>
+                    <td>${esc(s.facility_name)}, ${esc(s.region)}</td>
+                    <td>${s.registered_count}</td>
+                    <td>${statusBadge(s.status)}</td>
+                </tr>`).join('') || '<tr><td colspan="4" class="empty-state">No sessions yet</td></tr>';
+
+            // Funding requests (pending)
+            const pending = funding.filter(f => f.status === 'pending');
+            const fundingList = document.getElementById('funding-requests-list');
+            fundingList.innerHTML = pending.map(f => `
+                <div class="list-item">
+                    <div class="status-indicator status-high"></div>
+                    <div class="list-content">
+                        <div class="list-title">${esc(f.topic_title)}</div>
+                        <div class="list-subtitle">
+                            ${Number(f.requested_amount).toLocaleString()} ETB &bull;
+                            ${f.num_participants} participants &bull; ${f.duration_days} days
+                        </div>
+                        <div class="list-meta">Submitted by ${esc(f.trainer_name)}</div>
+                    </div>
+                    <div class="list-actions">
+                        <button class="btn btn-primary btn-sm"
+                            data-req-id="${f.id}" onclick="approveFunding(this, true)">Approve</button>
+                        <button class="btn btn-danger btn-sm"
+                            data-req-id="${f.id}" onclick="approveFunding(this, false)">Reject</button>
+                    </div>
+                </div>`).join('') ||
+                '<div class="empty-state">No pending funding requests</div>';
+
+            // Analytics table
+            document.getElementById('analytics-tbody').innerHTML = analytics.map(r => `
+                <tr>
+                    <td>${esc(r.region)}</td>
+                    <td>${r.trainings}</td>
+                    <td>${r.participants}</td>
+                    <td>${r.facilities}</td>
+                </tr>`).join('') || '<tr><td colspan="4" class="empty-state">No data yet</td></tr>';
+
+            renderRegionChart(analytics);
+
+        } catch (err) {
+            toast('Failed to load admin dashboard: ' + err.message, 'error');
+        }
+    }
+
+    // ============================================================
+    //  TRAINER DASHBOARD
+    // ============================================================
+    async function loadTrainerDashboard() {
+        try {
+            const [stats, sessions, funding] = await Promise.all([
+                api('GET', '/api/dashboard/stats'),
+                api('GET', '/api/sessions'),
+                api('GET', '/api/funding-requests'),
+            ]);
+            cachedSessions = sessions;
+
+            document.getElementById('trainer-my-trainings').textContent = stats.my_trainings;
+            document.getElementById('trainer-participants').textContent  = stats.total_participants;
+            document.getElementById('trainer-upcoming').textContent      = stats.upcoming_sessions;
+            document.getElementById('trainer-rating').textContent        = stats.rating;
+
+            const upcoming = sessions.filter(s => s.status === 'scheduled' || s.status === 'in_progress');
+            const past     = sessions.filter(s => s.status === 'completed' || s.status === 'cancelled');
+
+            document.getElementById('trainer-upcoming-list').innerHTML = upcoming.map(s => `
+                <div class="list-item">
+                    <div class="list-content">
+                        <div class="list-title">${esc(s.topic_title)}</div>
+                        <div class="list-subtitle">${esc(s.facility_name)}, ${esc(s.region)}</div>
+                        <div class="list-meta">
+                            ${formatDate(s.start_date)} – ${formatDate(s.end_date)} &bull;
+                            ${s.registered_count}/${s.max_participants} registered
+                        </div>
+                    </div>
+                    ${statusBadge(s.status)}
+                </div>`).join('') || '<div class="empty-state">No upcoming sessions</div>';
+
+            document.getElementById('trainer-past-list').innerHTML = past.map(s => `
+                <div class="list-item">
+                    <div class="list-content">
+                        <div class="list-title">${esc(s.topic_title)}</div>
+                        <div class="list-subtitle">${esc(s.facility_name)}, ${esc(s.region)}</div>
+                        <div class="list-meta">
+                            ${formatDate(s.start_date)} – ${formatDate(s.end_date)} &bull;
+                            ${s.registered_count} participants
+                        </div>
+                    </div>
+                    ${statusBadge(s.status)}
+                </div>`).join('') || '<div class="empty-state">No completed sessions yet</div>';
+
+            document.getElementById('trainer-funding-list').innerHTML = funding.map(f => `
+                <div class="list-item">
+                    <div class="status-indicator ${
+                        f.status === 'approved' ? 'status-low' :
+                        f.status === 'rejected' ? 'status-high' : 'status-medium'}">
+                    </div>
+                    <div class="list-content">
+                        <div class="list-title">${esc(f.topic_title)}</div>
+                        <div class="list-subtitle">
+                            ${Number(f.requested_amount).toLocaleString()} ETB &bull; ${f.num_participants} participants
+                        </div>
+                    </div>
+                    ${statusBadge(f.status)}
+                </div>`).join('') || '<div class="empty-state">No funding requests yet</div>';
+
+        } catch (err) {
+            toast('Failed to load trainer dashboard: ' + err.message, 'error');
+        }
+    }
+
+    // ============================================================
+    //  TRAINEE DASHBOARD
+    // ============================================================
+    async function loadTraineeDashboard() {
+        try {
+            const [stats, sessions, myRegs] = await Promise.all([
+                api('GET', '/api/dashboard/stats'),
+                api('GET', '/api/sessions'),
+                api('GET', '/api/my-registrations'),
+            ]);
+
+            document.getElementById('trainee-completed').textContent = stats.completed_trainings;
+            document.getElementById('trainee-certs').textContent     = stats.certificates;
+            document.getElementById('trainee-upcoming').textContent  = stats.upcoming;
+
+            // Compute training hours from completed registrations
+            const completedRegs = myRegs.filter(r => r.completion_status === 'completed');
+            const hours = completedRegs.reduce((sum, r) => {
+                const days = Math.max(1, Math.round(
+                    (new Date(r.end_date) - new Date(r.start_date)) / 86400000
+                ) + 1);
+                return sum + days * 8;
+            }, 0);
+            document.getElementById('trainee-hours').textContent = hours;
+
+            // Active registration banner
+            const active = myRegs.find(r =>
+                r.completion_status === 'enrolled' || r.session_status === 'in_progress'
+            );
+            const alertDiv  = document.getElementById('trainee-alert');
+            const alertText = document.getElementById('trainee-alert-text');
+            if (active) {
+                alertText.textContent =
+                    `You are registered for "${active.topic_title}" – ${formatDate(active.start_date)}`;
+                alertDiv.classList.remove('hidden');
             } else {
-                alert('Invalid credentials. Please use one of the demo accounts.');
+                alertDiv.classList.add('hidden');
+            }
+
+            // Available trainings (scheduled, not yet registered)
+            const registeredIds = new Set(myRegs.map(r => r.session_id));
+            const available = sessions.filter(s => s.status === 'scheduled' && !registeredIds.has(s.id));
+            document.getElementById('trainee-available-list').innerHTML = available.map(s => `
+                <div class="list-item">
+                    <div class="list-content">
+                        <div class="list-title">${esc(s.topic_title)}</div>
+                        <div class="list-subtitle">${esc(s.trainer_name)} &bull; ${esc(s.facility_name)}</div>
+                        <div class="list-meta">
+                            ${formatDate(s.start_date)} – ${formatDate(s.end_date)} &bull;
+                            ${s.registered_count}/${s.max_participants} registered
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-sm"
+                        data-session-id="${s.id}"
+                        onclick="registerForSession(this)">Register</button>
+                </div>`).join('') || '<div class="empty-state">No available trainings at this time</div>';
+
+            // Certificates (completed registrations)
+            document.getElementById('trainee-certs-list').innerHTML = completedRegs.map(r => {
+                const certNum = r.certificate_number || `EPHI-${new Date(r.end_date).getFullYear()}-CERT-${r.session_id}`;
+                return `
+                <div class="list-item">
+                    <div class="list-content">
+                        <div class="list-title">${esc(r.topic_title)}</div>
+                        <div class="list-subtitle">Completed: ${formatDate(r.end_date)}</div>
+                        <div class="list-meta">Certificate ID: ${esc(certNum)}</div>
+                    </div>
+                    <button class="btn btn-secondary btn-sm"
+                        data-topic="${esc(r.topic_title)}"
+                        data-name="${esc(currentUser.full_name)}"
+                        data-date="${esc(r.end_date)}"
+                        data-cert="${esc(certNum)}"
+                        data-facility="${esc(r.facility_name)}"
+                        data-trainer="${esc(r.trainer_name)}"
+                        onclick="downloadCertificateFromEl(this)">Download</button>
+                </div>`;
+            }).join('') || '<div class="empty-state">No certificates yet. Complete a training to earn one.</div>';
+
+        } catch (err) {
+            toast('Failed to load trainee dashboard: ' + err.message, 'error');
+        }
+    }
+
+    // ============================================================
+    //  EXTERNAL DASHBOARD
+    // ============================================================
+    async function loadExternalDashboard() {
+        try {
+            const [stats, sessions, topicAnalytics] = await Promise.all([
+                api('GET', '/api/dashboard/stats'),
+                api('GET', '/api/sessions'),
+                api('GET', '/api/analytics/by-topic'),
+            ]);
+            cachedSessions = sessions;
+
+            document.getElementById('ext-total-trainings').textContent = stats.total_trainings_2026;
+            document.getElementById('ext-hw-trained').textContent      = stats.healthcare_workers_trained.toLocaleString();
+            document.getElementById('ext-facilities').textContent      = stats.health_facilities;
+
+            // Populate filters
+            const regions = [...new Set(sessions.map(s => s.region))].filter(Boolean).sort();
+            const topics  = [...new Set(sessions.map(s => s.topic_title))].filter(Boolean).sort();
+            const rSel = document.getElementById('region-filter');
+            const tSel = document.getElementById('topic-filter');
+            rSel.innerHTML = '<option value="">All Regions</option>' + regions.map(r => `<option>${esc(r)}</option>`).join('');
+            tSel.innerHTML = '<option value="">All Topics</option>'  + topics.map(t => `<option>${esc(t)}</option>`).join('');
+
+            renderSessionsTable(sessions);
+            renderTopicChart(topicAnalytics);
+
+        } catch (err) {
+            toast('Failed to load external dashboard: ' + err.message, 'error');
+        }
+    }
+
+    function renderSessionsTable(sessions) {
+        document.getElementById('external-sessions-tbody').innerHTML = sessions.map(s => `
+            <tr>
+                <td>${esc(s.topic_title)}</td>
+                <td>${esc(s.trainer_name)}</td>
+                <td>${esc(s.facility_name)}, ${esc(s.region)}</td>
+                <td>${formatDate(s.start_date)} – ${formatDate(s.end_date)}</td>
+                <td>${s.registered_count}</td>
+                <td>${statusBadge(s.status)}</td>
+            </tr>`).join('') || '<tr><td colspan="6" class="empty-state">No sessions found</td></tr>';
+    }
+
+    function filterSessions() {
+        const region = document.getElementById('region-filter').value;
+        const topic  = document.getElementById('topic-filter').value;
+        let filtered = cachedSessions;
+        if (region) filtered = filtered.filter(s => s.region === region);
+        if (topic)  filtered = filtered.filter(s => s.topic_title === topic);
+        renderSessionsTable(filtered);
+    }
+
+    // ============================================================
+    //  CHARTS
+    // ============================================================
+    function renderRegionChart(data) {
+        const ctx = document.getElementById('regionChart');
+        if (!ctx || !data.length) return;
+        if (regionChartObj) regionChartObj.destroy();
+        regionChartObj = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.map(d => d.region),
+                datasets: [
+                    {
+                        label: 'Trainings',
+                        data: data.map(d => d.trainings),
+                        backgroundColor: 'rgba(26,95,61,0.8)',
+                        borderRadius: 4,
+                    },
+                    {
+                        label: 'Participants',
+                        data: data.map(d => d.participants),
+                        backgroundColor: 'rgba(212,165,116,0.8)',
+                        borderRadius: 4,
+                    }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'top' } },
+                scales: { y: { beginAtZero: true } }
             }
         });
+    }
 
-        function showDashboard() {
-            // Hide login, show main app
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('mainApp').classList.remove('hidden');
-            
-            // Update user info in header
-            document.getElementById('userName').textContent = currentUser.name;
-            document.getElementById('userRole').textContent = currentUser.role.toUpperCase();
-            document.getElementById('userAvatar').textContent = currentUser.avatar;
-            
-            // Hide all dashboards first
-            document.getElementById('adminDashboard').classList.add('hidden');
-            document.getElementById('trainerDashboard').classList.add('hidden');
-            document.getElementById('traineeDashboard').classList.add('hidden');
-            document.getElementById('externalDashboard').classList.add('hidden');
-            
-            // Show appropriate dashboard based on role
-            if (currentUser.role === 'admin') {
-                document.getElementById('adminDashboard').classList.remove('hidden');
-            } else if (currentUser.role === 'trainer') {
-                document.getElementById('trainerDashboard').classList.remove('hidden');
-            } else if (currentUser.role === 'trainee') {
-                document.getElementById('traineeDashboard').classList.remove('hidden');
-            } else if (currentUser.role === 'external') {
-                document.getElementById('externalDashboard').classList.remove('hidden');
+    function renderTopicChart(data) {
+        const ctx = document.getElementById('topicChart');
+        if (!ctx || !data.length) return;
+        if (topicChartObj) topicChartObj.destroy();
+        topicChartObj = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.map(d => d.title.length > 22 ? d.title.substring(0,22) + '…' : d.title),
+                datasets: [{
+                    label: 'Sessions',
+                    data: data.map(d => d.sessions),
+                    backgroundColor: 'rgba(26,95,61,0.8)',
+                    borderRadius: 4,
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { x: { beginAtZero: true } }
+            }
+        });
+    }
+
+    // ============================================================
+    //  ACTIONS
+    // ============================================================
+    async function registerForSession(btn) {
+        const sessionId = parseInt(btn.dataset.sessionId);
+        btn.disabled = true;
+        btn.textContent = 'Registering…';
+        try {
+            await api('POST', '/api/registrations', { session_id: sessionId });
+            toast('Registered successfully!');
+            await loadTraineeDashboard();
+        } catch (err) {
+            toast(err.message, 'error');
+            btn.disabled = false;
+            btn.textContent = 'Register';
+        }
+    }
+
+    async function approveFunding(btn, approve) {
+        const id = parseInt(btn.dataset.reqId);
+        btn.disabled = true;
+        try {
+            await api('PATCH', `/api/funding-requests/${id}`, {
+                status: approve ? 'approved' : 'rejected'
+            });
+            toast(`Funding request ${approve ? 'approved' : 'rejected'}`);
+            await loadAdminDashboard();
+        } catch (err) {
+            toast(err.message, 'error');
+            btn.disabled = false;
+        }
+    }
+
+    // ============================================================
+    //  MODAL OPENERS (with data loading)
+    // ============================================================
+    function openAddTopicModal() { openModal('addTopicModal'); }
+
+    async function openAddTrainerModal() {
+        const sel = document.getElementById('trainerFacility');
+        sel.innerHTML = '<option value="">Select Facility (optional)</option>' +
+            cachedFacilities.map(f => `<option value="${f.id}">${esc(f.name)} – ${esc(f.region)}</option>`).join('');
+        document.getElementById('trainerRegResult').innerHTML = '';
+        document.getElementById('trainerRegResult').classList.add('hidden');
+        document.getElementById('addTrainerForm').reset();
+        openModal('addTrainerModal');
+    }
+
+    function openCreateSession() {
+        const tSel = document.getElementById('sessionTopic');
+        const fSel = document.getElementById('sessionFacility');
+        tSel.innerHTML = '<option value="">Select Topic</option>' +
+            cachedTopics.map(t => `<option value="${t.id}">${esc(t.title)}</option>`).join('');
+        fSel.innerHTML = '<option value="">Select Facility</option>' +
+            cachedFacilities.map(f => `<option value="${f.id}">${esc(f.name)} – ${esc(f.region)}</option>`).join('');
+        openModal('createSessionModal');
+    }
+
+    function openFundingModal() {
+        const sel = document.getElementById('fundingTopic');
+        sel.innerHTML = '<option value="">Select Topic</option>' +
+            cachedTopics.map(t => `<option value="${t.id}">${esc(t.title)}</option>`).join('');
+        openModal('fundingModal');
+    }
+
+    // ============================================================
+    //  MODAL FORM SUBMISSIONS
+    // ============================================================
+    async function submitAddTopic(e) {
+        e.preventDefault();
+        const form = e.target;
+        const btn = form.querySelector('button[type=submit]');
+        btn.disabled = true;
+        try {
+            await api('POST', '/api/topics', {
+                title:        form.topicTitle.value,
+                description:  form.topicDesc.value,
+                duration_days: parseInt(form.topicDuration.value),
+                category:     form.topicCategory.value,
+            });
+            toast('Training topic added successfully');
+            closeModal();
+            form.reset();
+            cachedTopics = await api('GET', '/api/topics');
+            await loadAdminDashboard();
+        } catch (err) {
+            toast(err.message, 'error');
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    async function submitRegisterTrainer(e) {
+        e.preventDefault();
+        const form = e.target;
+        const btn  = document.getElementById('addTrainerBtn');
+        btn.disabled = true;
+        btn.textContent = 'Registering…';
+        try {
+            const res = await api('POST', '/api/users', {
+                email:              form.trainerEmail.value.trim(),
+                password:           form.trainerPassword.value,
+                full_name:          form.trainerName.value,
+                role:               'trainer',
+                phone:              form.trainerPhone.value,
+                position:           form.trainerPosition.value,
+                region:             form.trainerRegion.value,
+                health_facility_id: form.trainerFacility.value || null,
+            });
+
+            // Show success + demo verification token
+            const resultDiv = document.getElementById('trainerRegResult');
+            let html = `<div class="inline-success">${esc(res.message)}</div>`;
+            if (res.demo_verify_token) {
+                html += `
+                <div class="token-box">
+                    <div class="token-label">Email Verification Token (Demo Mode)</div>
+                    <div class="token-value">${esc(res.demo_verify_token)}</div>
+                    <div class="token-note">${esc(res.demo_note)}</div>
+                </div>`;
+            }
+            resultDiv.innerHTML = html;
+            resultDiv.classList.remove('hidden');
+            form.style.display = 'none';
+        } catch (err) {
+            toast(err.message, 'error');
+            btn.disabled = false;
+            btn.textContent = 'Register Trainer';
+        }
+    }
+
+    async function submitCreateSession(e) {
+        e.preventDefault();
+        const form = e.target;
+        const btn  = form.querySelector('button[type=submit]');
+        btn.disabled = true;
+        try {
+            await api('POST', '/api/sessions', {
+                topic_id:            parseInt(form.sessionTopic.value),
+                health_facility_id:  parseInt(form.sessionFacility.value),
+                start_date:          form.sessionStart.value,
+                end_date:            form.sessionEnd.value,
+                max_participants:    parseInt(form.sessionMax.value),
+                location_details:    form.sessionDetails.value,
+            });
+            toast('Training session created!');
+            closeModal();
+            form.reset();
+            await loadTrainerDashboard();
+        } catch (err) {
+            toast(err.message, 'error');
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    async function submitFundingRequest(e) {
+        e.preventDefault();
+        const form = e.target;
+        const btn  = form.querySelector('button[type=submit]');
+        btn.disabled = true;
+        try {
+            await api('POST', '/api/funding-requests', {
+                topic_id:         parseInt(form.fundingTopic.value),
+                requested_amount: parseFloat(form.fundingAmount.value),
+                num_participants: parseInt(form.fundingParticipants.value),
+                duration_days:    parseInt(form.fundingDays.value),
+                justification:    form.fundingJustification.value,
+            });
+            toast('Funding request submitted!');
+            closeModal();
+            form.reset();
+            await loadTrainerDashboard();
+        } catch (err) {
+            toast(err.message, 'error');
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    // ============================================================
+    //  FORGOT / RESET PASSWORD
+    // ============================================================
+    function openForgotPassword() {
+        // Reset modal to step 1
+        document.getElementById('fpStep1').classList.remove('hidden');
+        document.getElementById('fpStep2').classList.add('hidden');
+        document.getElementById('fpStep1Error').classList.add('hidden');
+        document.getElementById('fpStep2Error').classList.add('hidden');
+        document.getElementById('fpTokenBox').classList.add('hidden');
+        document.getElementById('fpEmail').value = '';
+        document.getElementById('fpModalTitle').textContent = 'Forgot Password';
+        openModal('forgotPasswordModal');
+    }
+
+    function backToFpStep1() {
+        document.getElementById('fpStep1').classList.remove('hidden');
+        document.getElementById('fpStep2').classList.add('hidden');
+    }
+
+    async function submitForgotPassword(e) {
+        e.preventDefault();
+        const email = document.getElementById('fpEmail').value.trim();
+        const btn   = document.getElementById('fpSendBtn');
+        const errDiv = document.getElementById('fpStep1Error');
+
+        errDiv.classList.add('hidden');
+        btn.disabled = true;
+        btn.textContent = 'Sending…';
+
+        try {
+            const res = await api('POST', '/api/auth/forgot-password', { email });
+
+            // Prefill email in step 2
+            document.getElementById('fpEmail2').value = email;
+
+            // Show demo token if available
+            const tokenBox = document.getElementById('fpTokenBox');
+            if (res.demo_token) {
+                document.getElementById('fpTokenDisplay').textContent = res.demo_token;
+                tokenBox.classList.remove('hidden');
+            } else {
+                tokenBox.classList.add('hidden');
+            }
+
+            document.getElementById('fpModalTitle').textContent = 'Enter Reset Code';
+            document.getElementById('fpStep1').classList.add('hidden');
+            document.getElementById('fpStep2').classList.remove('hidden');
+
+        } catch (err) {
+            errDiv.textContent = err.message;
+            errDiv.classList.remove('hidden');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Send Reset Code';
+        }
+    }
+
+    async function submitResetPassword(e) {
+        e.preventDefault();
+        const newPwd  = document.getElementById('fpNewPassword').value;
+        const confPwd = document.getElementById('fpConfirmPassword').value;
+        const errDiv  = document.getElementById('fpStep2Error');
+        const btn     = document.getElementById('fpResetBtn');
+
+        errDiv.classList.add('hidden');
+
+        if (newPwd !== confPwd) {
+            errDiv.textContent = 'Passwords do not match';
+            errDiv.classList.remove('hidden');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Resetting…';
+
+        try {
+            await api('POST', '/api/auth/reset-password', {
+                email:        document.getElementById('fpEmail2').value,
+                token:        document.getElementById('fpToken').value.trim().toUpperCase(),
+                new_password: newPwd,
+            });
+            toast('Password reset successfully! Please log in with your new password.');
+            closeModal();
+        } catch (err) {
+            errDiv.textContent = err.message;
+            errDiv.classList.remove('hidden');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Reset Password';
+        }
+    }
+
+    // ============================================================
+    //  EMAIL VERIFICATION
+    // ============================================================
+    async function sendVerification() {
+        try {
+            const res = await api('POST', '/api/auth/send-verification');
+            if (res.demo_token) {
+                document.getElementById('veTokenDisplay').textContent = res.demo_token;
+                document.getElementById('veTokenBox').classList.remove('hidden');
+            }
+            toast(res.message || 'Verification code sent');
+            openModal('verifyEmailModal');
+        } catch (err) {
+            toast(err.message, 'error');
+        }
+    }
+
+    async function submitVerifyEmail(e) {
+        e.preventDefault();
+        const token  = document.getElementById('veToken').value.trim().toUpperCase();
+        const errDiv = document.getElementById('veError');
+        errDiv.classList.add('hidden');
+        try {
+            await api('POST', '/api/auth/verify-email', { token });
+            currentUser.is_verified = true;
+            localStorage.setItem('ephi_user', JSON.stringify(currentUser));
+            document.getElementById('verifyBanner').classList.add('hidden');
+            toast('Email verified successfully!');
+            closeModal();
+        } catch (err) {
+            errDiv.textContent = err.message;
+            errDiv.classList.remove('hidden');
+        }
+    }
+
+    // ============================================================
+    //  EXPORT CSV
+    // ============================================================
+    function exportData() {
+        if (!cachedSessions.length) { toast('No data to export', 'error'); return; }
+        const rows = cachedSessions.map(s => ({
+            Topic:        s.topic_title,
+            Trainer:      s.trainer_name,
+            Facility:     s.facility_name,
+            Region:       s.region,
+            'Start Date': s.start_date,
+            'End Date':   s.end_date,
+            Participants: s.registered_count,
+            Status:       s.status,
+        }));
+        const keys = Object.keys(rows[0]);
+        const csv  = [
+            keys.join(','),
+            ...rows.map(r => keys.map(k => `"${String(r[k]||'').replace(/"/g,'""')}"`).join(','))
+        ].join('\n');
+        const a = Object.assign(document.createElement('a'), {
+            href:     URL.createObjectURL(new Blob([csv], { type: 'text/csv' })),
+            download: 'ephi-training-sessions.csv',
+        });
+        a.click();
+        URL.revokeObjectURL(a.href);
+        toast('CSV exported!');
+    }
+
+    // ============================================================
+    //  CERTIFICATE DOWNLOAD
+    // ============================================================
+    function downloadCertificateFromEl(btn) {
+        downloadCertificate({
+            topic:    btn.dataset.topic,
+            name:     btn.dataset.name,
+            date:     btn.dataset.date,
+            cert:     btn.dataset.cert,
+            facility: btn.dataset.facility,
+            trainer:  btn.dataset.trainer,
+        });
+    }
+
+    function downloadCertificate(c) {
+        const html = `<!DOCTYPE html><html><head><title>Certificate</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Archivo:wght@400;600&display=swap');
+  * { margin:0;padding:0;box-sizing:border-box; }
+  body { background:#f5f0e8;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:2rem; }
+  .cert {
+    background:white; max-width:820px; width:100%;
+    border:8px double #1a5f3d; padding:60px 70px;
+    text-align:center; position:relative; font-family:'Archivo',sans-serif;
+    box-shadow:0 20px 60px rgba(0,0,0,0.15);
+  }
+  .cert::before { content:''; position:absolute; inset:14px; border:1.5px solid #d4a574; pointer-events:none; }
+  .ephi { font-size:12px; letter-spacing:4px; text-transform:uppercase; color:#1a5f3d; margin-bottom:24px; }
+  .title { font-family:'DM Serif Display',serif; font-size:52px; color:#1a5f3d; margin-bottom:8px; }
+  .of    { font-size:18px; color:#888; letter-spacing:2px; margin-bottom:48px; }
+  .certify { font-size:14px; color:#666; margin-bottom:12px; }
+  .name  { font-family:'DM Serif Display',serif; font-size:38px; color:#222; display:inline-block; border-bottom:2px solid #d4a574; padding-bottom:10px; margin-bottom:36px; }
+  .for   { font-size:14px; color:#666; margin-bottom:10px; }
+  .course { font-size:22px; font-weight:600; color:#1a5f3d; margin-bottom:48px; }
+  .details { display:flex; justify-content:space-around; margin:0 auto 52px; max-width:640px; }
+  .detail .lbl { font-size:10px; text-transform:uppercase; letter-spacing:2px; color:#aaa; }
+  .detail .val { font-size:14px; color:#333; margin-top:6px; font-weight:600; }
+  .sigs { display:flex; justify-content:space-around; }
+  .sig { text-align:center; }
+  .sig-line { border-top:1px solid #333; width:180px; padding-top:8px; font-size:12px; color:#666; }
+  .cert-id { position:absolute; bottom:28px; right:36px; font-size:10px; color:#bbb; font-family:monospace; }
+  @media print { body { background:white;padding:0; } }
+</style></head><body>
+<div class="cert">
+  <div class="ephi">Ethiopian Public Health Institute</div>
+  <div class="title">Certificate</div>
+  <div class="of">of Completion</div>
+  <div class="certify">This is to certify that</div>
+  <div><span class="name">${c.name}</span></div>
+  <div class="for">has successfully completed the training program</div>
+  <div class="course">${c.topic}</div>
+  <div class="details">
+    <div class="detail"><div class="lbl">Completion Date</div><div class="val">${formatDate(c.date)}</div></div>
+    <div class="detail"><div class="lbl">Training Facility</div><div class="val">${c.facility}</div></div>
+    <div class="detail"><div class="lbl">Lead Trainer</div><div class="val">${c.trainer}</div></div>
+  </div>
+  <div class="sigs">
+    <div class="sig"><div class="sig-line">Director General, EPHI</div></div>
+    <div class="sig"><div class="sig-line">Training Coordinator</div></div>
+  </div>
+  <div class="cert-id">${c.cert}</div>
+</div>
+<script>window.onload=()=>window.print();<\/script>
+</body></html>`;
+        const win = window.open('', '_blank');
+        if (win) { win.document.write(html); win.document.close(); }
+        else toast('Allow pop-ups to download the certificate', 'error');
+    }
+
+    // ============================================================
+    //  AUTO-LOGIN ON PAGE LOAD
+    // ============================================================
+    window.addEventListener('DOMContentLoaded', async () => {
+        if (authToken && currentUser) {
+            try {
+                await showDashboard();
+            } catch (e) {
+                logout();
             }
         }
-
-        function logout() {
-            currentUser = null;
-            document.getElementById('mainApp').classList.add('hidden');
-            document.getElementById('loginPage').classList.remove('hidden');
-            document.getElementById('loginEmail').value = '';
-            document.getElementById('loginPassword').value = '';
-        }
-
-        function showModal(modalId) {
-            alert('Modal functionality: ' + modalId + '\n\nIn the full implementation, this would open a form modal for:\n- Adding training topics\n- Registering trainers\n- Creating training sessions\n- Submitting funding requests\n- Registering for trainings');
-        }
-
-        function exportData() {
-            alert('Export Data\n\nIn the full implementation, this would:\n- Generate Excel/CSV/PDF reports\n- Include selected filters and date ranges\n- Download the file automatically');
-        }
-    </script>
+    });
+</script>
 </body>
 </html>
