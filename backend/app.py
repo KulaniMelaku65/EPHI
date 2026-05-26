@@ -1,10 +1,13 @@
 """
 EPHI Training Management System - Backend API
-Python Flask REST API with SQLite database
+Python Flask REST API with SQLite/PostgreSQL database
 """
 
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from dotenv import load_dotenv
 import sqlite3
 import hashlib
 import jwt
@@ -16,21 +19,45 @@ import os
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import bcrypt
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
+
+# ===== CORS CONFIGURATION (SECURITY FIX #2) =====
+# Restrict CORS to your domain instead of allowing all origins
+CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'http://localhost:5000,http://localhost:3000').split(',')
+CORS(app, resources={
+    r"/api/*": {
+        "origins": CORS_ORIGINS,
+        "methods": ["GET", "POST", "PUT", "DELETE", "PATCH"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
+
+# ===== RATE LIMITING (SECURITY FIX #5) =====
+# Prevent brute force attacks on login
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://"
+)
 
 # Configuration
-app.config['SECRET_KEY'] = 'ephi-training-secret-key-change-in-production'
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'ephi-training-secret-key-change-in-production')
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATABASE_PATH = os.path.join(BASE_DIR, 'database', 'ephi_training.db')
 app.config['DATABASE'] = DATABASE_PATH
 
-app.config['SMTP_SERVER'] = 'smtp.gmail.com'
-app.config['SMTP_PORT'] = 587
-app.config['SMTP_EMAIL'] = 'your-email@gmail.com'
-app.config['SMTP_PASSWORD'] = 'your-password'
+# SMTP Configuration (Email)
+app.config['SMTP_SERVER'] = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
+app.config['SMTP_PORT'] = int(os.getenv('SMTP_PORT', '587'))
+app.config['SMTP_EMAIL'] = os.getenv('SMTP_EMAIL', '')
+app.config['SMTP_PASSWORD'] = os.getenv('SMTP_PASSWORD', '')
 
 # ============ DATABASE HELPERS ============
 
