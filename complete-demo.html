@@ -10,19 +10,19 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --primary: #1a5f3d;
-            --primary-light: #2d8659;
-            --primary-dark: #0f3d28;
-            --secondary: #d4a574;
-            --accent: #e85d3a;
+            --primary: #4A90E2;
+            --primary-light: #6BA3ED;
+            --primary-dark: #2E5AA8;
+            --secondary: #1a5f3d;
+            --accent: #FFD700;
             --bg-main: #fafaf8;
             --bg-card: #ffffff;
             --text-primary: #1a1a1a;
             --text-secondary: #5a5a5a;
             --text-muted: #8a8a8a;
             --border: #e5e5e5;
-            --success: #2d8659;
-            --warning: #f4a261;
+            --success: #1a5f3d;
+            --warning: #FFD700;
             --danger: #e85d3a;
             --shadow: 0 2px 8px rgba(0,0,0,0.08);
             --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
@@ -57,11 +57,18 @@
         }
         .logo { display: flex; align-items: center; gap: 1rem; }
         .logo-icon {
-            width: 42px; height: 42px;
-            background: var(--secondary);
-            border-radius: 8px;
+            width: 50px; height: 50px;
+            border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 18px; color: var(--primary-dark);
+            font-weight: 700; font-size: 18px; color: white;
+            background: white;
+            padding: 2px;
+            box-shadow: inset 0 0 0 2px var(--secondary);
+        }
+        .logo-icon img {
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            object-fit: contain;
         }
         .logo-text { display: flex; flex-direction: column; }
         .logo-title { font-family: 'DM Serif Display', serif; font-size: 20px; font-weight: 400; line-height: 1.2; }
@@ -436,7 +443,9 @@
         <header class="header">
             <div class="header-content">
                 <div class="logo">
-                    <div class="logo-icon">EP</div>
+                    <div class="logo-icon">
+                        <img src="logo.png" alt="EPHI Logo" title="Ethiopian Public Health Institute">
+                    </div>
                     <div class="logo-text">
                         <div class="logo-title">EPHI Training System</div>
                         <div class="logo-subtitle">Training Management &amp; Analytics</div>
@@ -487,10 +496,13 @@
                     </div>
                 </div>
 
-                <div class="filters">
-                    <button class="btn btn-primary" onclick="openAddTopicModal()">+ Add Training Topic</button>
-                    <button class="btn btn-secondary" onclick="openAddTrainerModal()">+ Register Trainer</button>
-                    <button class="btn btn-secondary" onclick="exportData()">Export CSV</button>
+                <div class="filters" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <button class="btn btn-primary" onclick="openAddTopicModal()">+ Add Training Topic</button>
+                        <button class="btn btn-secondary" onclick="openAddTrainerModal()">+ Register Trainer</button>
+                        <button class="btn btn-secondary" onclick="exportData()">Export CSV</button>
+                    </div>
+                    <button class="btn btn-secondary" onclick="openProfileModal()">Edit Profile</button>
                 </div>
 
                 <div class="dashboard-grid">
@@ -544,6 +556,44 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="card mt-2">
+                    <div class="card-header">
+                        <h2 class="card-title">Manage Users</h2>
+                        <button class="btn btn-sm btn-primary" onclick="openAddTrainerModal()">+ Add User</button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Email</th><th>Name</th><th>Role</th><th>Status</th><th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-tbody">
+                                <tr><td colspan="5" class="empty-state">Loading…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card mt-2">
+                    <div class="card-header">
+                        <h2 class="card-title">Manage Regions</h2>
+                        <button class="btn btn-sm btn-primary" onclick="openAddRegionModal()">+ Add Region</button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th><th>Code</th><th>Description</th><th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="regions-tbody">
+                                <tr><td colspan="4" class="empty-state">Loading…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <!-- ===== TRAINER DASHBOARD ===== -->
@@ -576,9 +626,13 @@
                     </div>
                 </div>
 
-                <div class="filters">
-                    <button class="btn btn-primary" onclick="openCreateSession()">+ Create Training Session</button>
-                    <button class="btn btn-secondary" onclick="openFundingModal()">Request Funding</button>
+                <div class="filters" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <button class="btn btn-primary" onclick="openCreateSession()">+ Create Training Session</button>
+                        <button class="btn btn-secondary" onclick="openFundingModal()">Request Funding</button>
+                        <button class="btn btn-secondary" onclick="showRegistrationFormsModal()">Registration Forms</button>
+                    </div>
+                    <button class="btn btn-secondary" onclick="openProfileModal()">Edit Profile</button>
                 </div>
 
                 <div class="dashboard-grid">
@@ -632,6 +686,10 @@
                     </div>
                 </div>
 
+                <div class="filters" style="text-align: right;">
+                    <button class="btn btn-secondary" onclick="openProfileModal()">Edit Profile</button>
+                </div>
+
                 <div class="dashboard-grid">
                     <div class="card">
                         <div class="card-header"><h2 class="card-title">Available Trainings</h2></div>
@@ -666,14 +724,17 @@
                     </div>
                 </div>
 
-                <div class="filters">
-                    <select class="form-select" id="region-filter" style="width:auto" onchange="filterSessions()">
-                        <option value="">All Regions</option>
-                    </select>
-                    <select class="form-select" id="topic-filter" style="width:auto" onchange="filterSessions()">
-                        <option value="">All Topics</option>
-                    </select>
-                    <button class="btn btn-secondary" onclick="exportData()">Export Report CSV</button>
+                <div class="filters" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; gap: 1rem;">
+                        <select class="form-select" id="region-filter" style="width:auto" onchange="filterSessions()">
+                            <option value="">All Regions</option>
+                        </select>
+                        <select class="form-select" id="topic-filter" style="width:auto" onchange="filterSessions()">
+                            <option value="">All Topics</option>
+                        </select>
+                        <button class="btn btn-secondary" onclick="exportData()">Export Report CSV</button>
+                    </div>
+                    <button class="btn btn-secondary" onclick="openProfileModal()">Edit Profile</button>
                 </div>
 
                 <div class="dashboard-grid" style="grid-template-columns:3fr 2fr">
@@ -939,6 +1000,51 @@
             </form>
         </div>
 
+        <!-- EDIT TRAINING SESSION (trainer) -->
+        <div id="editSessionModal" class="modal-box hidden">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Training Session</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form onsubmit="submitEditSession(event)">
+                <div class="form-group">
+                    <label class="form-label">Training Topic *</label>
+                    <select id="editSessionTopic" name="editSessionTopic" class="form-select" required>
+                        <option value="">Select Topic</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Health Facility *</label>
+                    <select id="editSessionFacility" name="editSessionFacility" class="form-select" required>
+                        <option value="">Select Facility</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Start Date *</label>
+                        <input type="date" id="editSessionStart" name="editSessionStart" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">End Date *</label>
+                        <input type="date" id="editSessionEnd" name="editSessionEnd" class="form-input" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Maximum Participants</label>
+                    <input type="number" id="editSessionMax" name="editSessionMax" class="form-input" min="1" max="500">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Location Details</label>
+                    <textarea id="editSessionDetails" name="editSessionDetails" class="form-textarea" rows="3"
+                              placeholder="Room number, building, any special instructions…"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+
         <!-- REQUEST FUNDING (trainer) -->
         <div id="fundingModal" class="modal-box hidden">
             <div class="modal-header">
@@ -978,6 +1084,193 @@
             </form>
         </div>
 
+        <!-- REGISTRATION FORMS MANAGER (trainer) -->
+        <div id="formsManagerModal" class="modal-box hidden">
+            <div class="modal-header">
+                <h3 class="modal-title">Trainee Registration Forms</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div style="padding: 20px;">
+                <button class="btn btn-primary" onclick="openCreateFormModal()" style="margin-bottom:1rem;">+ Create New Form</button>
+                <div id="forms-list"><div class="empty-state">Loading forms...</div></div>
+            </div>
+        </div>
+
+        <!-- CREATE REGISTRATION FORM (trainer) -->
+        <div id="createFormModal" class="modal-box modal-sm hidden">
+            <div class="modal-header">
+                <h3 class="modal-title">Create Registration Form</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form onsubmit="submitCreateForm(event)">
+                <div class="form-group">
+                    <label class="form-label">Training Session *</label>
+                    <select id="formSession" name="formSession" class="form-select" required>
+                        <option value="">Select Session</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Form Name *</label>
+                    <input type="text" id="formName" name="formName" class="form-input" required placeholder="e.g., Lab QA Registration">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea id="formDesc" name="formDesc" class="form-textarea" rows="2" placeholder="Instructions for trainees..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Form</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- VIEW FORM SUBMISSIONS (trainer) -->
+        <div id="submissionsModal" class="modal-box hidden">
+            <div class="modal-header">
+                <h3 class="modal-title" id="submissionsTitle">Form Submissions</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div style="padding: 20px; max-height: 500px; overflow-y: auto;">
+                <div id="submissions-list"><div class="empty-state">Loading submissions...</div></div>
+            </div>
+        </div>
+
+        <!-- ADD REGION MODAL (admin) -->
+        <div id="addRegionModal" class="modal-box modal-sm hidden">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Region</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form onsubmit="submitAddRegion(event)">
+                <div class="form-group">
+                    <label class="form-label">Region Name *</label>
+                    <input type="text" id="regionName" name="regionName" class="form-input" required placeholder="e.g., Oromia">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Code</label>
+                    <input type="text" id="regionCode" name="regionCode" class="form-input" placeholder="e.g., OR" maxlength="2">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea id="regionDesc" name="regionDesc" class="form-textarea" rows="2" placeholder="Optional description"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Region</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- USER PROFILE MODAL -->
+        <div id="profileModal" class="modal-box hidden">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Profile</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form onsubmit="submitProfileUpdate(event)">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" id="profileFullName" name="profileFullName" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone</label>
+                    <input type="tel" id="profilePhone" name="profilePhone" class="form-input" placeholder="+251...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Position</label>
+                    <input type="text" id="profilePosition" name="profilePosition" class="form-input">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Region</label>
+                        <select id="profileRegion" name="profileRegion" class="form-select"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Health Facility</label>
+                        <select id="profileFacility" name="profileFacility" class="form-select"></select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Years of Experience</label>
+                        <input type="number" id="profileYearsExp" name="profileYearsExp" class="form-input" min="0" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Education Level</label>
+                        <input type="text" id="profileEducation" name="profileEducation" class="form-input" placeholder="e.g., Bachelor's, Master's">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Profile</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- EDIT USER MODAL (admin) -->
+        <div id="editUserModal" class="modal-box modal-sm hidden">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit User</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form onsubmit="submitEditUser(event)">
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="editUserEmail" class="form-input" disabled>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" id="editUserName" class="form-input" disabled>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Role</label>
+                    <select id="editUserRole" class="form-select">
+                        <option value="trainer">Trainer</option>
+                        <option value="trainee">Trainee</option>
+                        <option value="admin">Admin</option>
+                        <option value="external">External</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select id="editUserStatus" class="form-select">
+                        <option value="1">Active</option>
+                        <option value="0">Inactive</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- EDIT REGION MODAL (admin) -->
+        <div id="editRegionModal" class="modal-box modal-sm hidden">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Region</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form onsubmit="submitEditRegion(event)">
+                <div class="form-group">
+                    <label class="form-label">Region Name *</label>
+                    <input type="text" id="editRegionName" name="editRegionName" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Code</label>
+                    <input type="text" id="editRegionCode" name="editRegionCode" class="form-input" maxlength="2">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea id="editRegionDesc" name="editRegionDesc" class="form-textarea" rows="2"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+
     </div><!-- /modalOverlay -->
 
     <!-- Toast Container -->
@@ -999,6 +1292,8 @@
     let cachedSessions   = [];
     let cachedTopics     = [];
     let cachedFacilities = [];
+    let cachedRegions    = [];
+    let cachedUsers      = [];
     let regionChartObj   = null;
     let topicChartObj    = null;
 
@@ -1170,13 +1465,17 @@
     // ============================================================
     async function loadAdminDashboard() {
         try {
-            const [stats, sessions, funding, analytics] = await Promise.all([
+            const [stats, sessions, funding, analytics, regions, users] = await Promise.all([
                 api('GET', '/api/dashboard/stats'),
                 api('GET', '/api/sessions'),
                 api('GET', '/api/funding-requests'),
                 api('GET', '/api/analytics/by-region'),
+                api('GET', '/api/regions'),
+                api('GET', '/api/users'),
             ]);
             cachedSessions = sessions;
+            cachedRegions = regions;
+            cachedUsers = users;
 
             document.getElementById('admin-total-trainings').textContent  = stats.total_trainings;
             document.getElementById('admin-active-trainers').textContent   = stats.active_trainers;
@@ -1228,6 +1527,31 @@
 
             renderRegionChart(analytics);
 
+            // Users table
+            document.getElementById('users-tbody').innerHTML = users.map(u => `
+                <tr>
+                    <td>${esc(u.email)}</td>
+                    <td>${esc(u.full_name)}</td>
+                    <td><span class="badge">${u.role}</span></td>
+                    <td>${u.is_active ? '<span style="color:green">Active</span>' : '<span style="color:red">Inactive</span>'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-secondary" onclick="openEditUserModal(${u.id})">Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteUser(${u.id}, '${esc(u.full_name)}')">Delete</button>
+                    </td>
+                </tr>`).join('') || '<tr><td colspan="5" class="empty-state">No users found</td></tr>';
+
+            // Regions table
+            document.getElementById('regions-tbody').innerHTML = regions.map(r => `
+                <tr>
+                    <td>${esc(r.name)}</td>
+                    <td>${esc(r.code || '—')}</td>
+                    <td>${esc(r.description || '—')}</td>
+                    <td>
+                        <button class="btn btn-sm btn-secondary" onclick="openEditRegionModal(${r.id})">Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteRegion(${r.id}, '${esc(r.name)}')">Delete</button>
+                    </td>
+                </tr>`).join('') || '<tr><td colspan="4" class="empty-state">No regions found</td></tr>';
+
         } catch (err) {
             toast('Failed to load admin dashboard: ' + err.message, 'error');
         }
@@ -1263,7 +1587,10 @@
                             ${s.registered_count}/${s.max_participants} registered
                         </div>
                     </div>
-                    ${statusBadge(s.status)}
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button class="btn btn-sm btn-secondary" onclick="openEditSession(${s.id})">Edit</button>
+                        ${statusBadge(s.status)}
+                    </div>
                 </div>`).join('') || '<div class="empty-state">No upcoming sessions</div>';
 
             document.getElementById('trainer-past-list').innerHTML = past.map(s => `
@@ -1663,6 +1990,382 @@
                 justification:    form.fundingJustification.value,
             });
             toast('Funding request submitted!');
+            closeModal();
+            form.reset();
+            await loadTrainerDashboard();
+        } catch (err) {
+            toast(err.message, 'error');
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    function openAddRegionModal() {
+        document.getElementById('regionName').value = '';
+        document.getElementById('regionCode').value = '';
+        document.getElementById('regionDesc').value = '';
+        openModal('addRegionModal');
+    }
+
+    async function submitAddRegion(e) {
+        e.preventDefault();
+        const form = e.target;
+        const btn = form.querySelector('button[type=submit]');
+        btn.disabled = true;
+        try {
+            await api('POST', '/api/regions', {
+                name: form.regionName.value.trim(),
+                code: form.regionCode.value.trim() || null,
+                description: form.regionDesc.value.trim() || null,
+            });
+            toast('Region added successfully');
+            closeModal();
+            form.reset();
+            cachedRegions = await api('GET', '/api/regions');
+            await loadAdminDashboard();
+        } catch (err) {
+            toast(err.message, 'error');
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    function openEditRegionModal(regionId) {
+        const region = cachedRegions.find(r => r.id === regionId);
+        if (!region) return;
+
+        document.getElementById('editRegionName').value = region.name;
+        document.getElementById('editRegionCode').value = region.code || '';
+        document.getElementById('editRegionDesc').value = region.description || '';
+        openModal('editRegionModal');
+        document.getElementById('editRegionModal')._regionId = regionId;
+    }
+
+    async function submitEditRegion(e) {
+        e.preventDefault();
+        const form = e.target;
+        const btn = form.querySelector('button[type=submit]');
+        const regionId = document.getElementById('editRegionModal')._regionId;
+        btn.disabled = true;
+        try {
+            await api('PUT', `/api/regions/${regionId}`, {
+                name: form.editRegionName.value.trim(),
+                code: form.editRegionCode.value.trim() || null,
+                description: form.editRegionDesc.value.trim() || null,
+            });
+            toast('Region updated successfully');
+            closeModal();
+            form.reset();
+            cachedRegions = await api('GET', '/api/regions');
+            await loadAdminDashboard();
+        } catch (err) {
+            toast(err.message, 'error');
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    async function deleteRegion(regionId, regionName) {
+        if (!confirm(`Delete region "${regionName}"?`)) return;
+        try {
+            await api('DELETE', `/api/regions/${regionId}`);
+            toast('Region deleted successfully');
+            cachedRegions = await api('GET', '/api/regions');
+            await loadAdminDashboard();
+        } catch (err) {
+            toast(err.message, 'error');
+        }
+    }
+
+    async function openProfileModal() {
+        try {
+            const user = await api('GET', '/api/users/me');
+
+            document.getElementById('profileFullName').value = user.full_name || '';
+            document.getElementById('profilePhone').value = user.phone || '';
+            document.getElementById('profilePosition').value = user.position || '';
+            document.getElementById('profileRegion').value = user.region || '';
+            document.getElementById('profileYearsExp').value = user.years_experience || '';
+            document.getElementById('profileEducation').value = user.education_level || '';
+            document.getElementById('profileFacility').value = user.health_facility_id || '';
+
+            // Populate dropdowns
+            const regionSelect = document.getElementById('profileRegion');
+            regionSelect.innerHTML = '<option value="">Select Region</option>' +
+                cachedRegions.map(r => `<option value="${esc(r.name)}">${esc(r.name)}</option>`).join('');
+            if (user.region) regionSelect.value = user.region;
+
+            const facilitySelect = document.getElementById('profileFacility');
+            facilitySelect.innerHTML = '<option value="">Select Facility</option>' +
+                cachedFacilities.map(f => `<option value="${f.id}">${esc(f.name)}</option>`).join('');
+            if (user.health_facility_id) facilitySelect.value = user.health_facility_id;
+
+            openModal('profileModal');
+        } catch (err) {
+            toast('Failed to load profile: ' + err.message, 'error');
+        }
+    }
+
+    async function submitProfileUpdate(e) {
+        e.preventDefault();
+        const form = e.target;
+        const btn = form.querySelector('button[type=submit]');
+        btn.disabled = true;
+        try {
+            await api('PUT', '/api/users/me', {
+                full_name: form.profileFullName.value.trim(),
+                phone: form.profilePhone.value.trim() || null,
+                position: form.profilePosition.value.trim() || null,
+                region: form.profileRegion.value.trim() || null,
+                health_facility_id: form.profileFacility.value ? parseInt(form.profileFacility.value) : null,
+                years_experience: form.profileYearsExp.value ? parseInt(form.profileYearsExp.value) : null,
+                education_level: form.profileEducation.value.trim() || null,
+            });
+            toast('Profile updated successfully');
+            closeModal();
+            form.reset();
+
+            // Update currentUser if full_name changed
+            currentUser.full_name = form.profileFullName.value;
+            localStorage.setItem('user', JSON.stringify(currentUser));
+        } catch (err) {
+            toast(err.message, 'error');
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    function openEditUserModal(userId) {
+        const user = cachedUsers.find(u => u.id === userId);
+        if (!user) return;
+
+        document.getElementById('editUserEmail').value = user.email;
+        document.getElementById('editUserName').value = user.full_name;
+        document.getElementById('editUserRole').value = user.role;
+        document.getElementById('editUserStatus').value = user.is_active ? '1' : '0';
+
+        openModal('editUserModal');
+        document.getElementById('editUserModal')._userId = userId;
+    }
+
+    async function submitEditUser(e) {
+        e.preventDefault();
+        const form = e.target;
+        const btn = form.querySelector('button[type=submit]');
+        const userId = document.getElementById('editUserModal')._userId;
+        btn.disabled = true;
+        try {
+            await api('PUT', `/api/users/${userId}`, {
+                role: form.editUserRole.value,
+                is_active: form.editUserStatus.value === '1',
+            });
+            toast('User updated successfully');
+            closeModal();
+            form.reset();
+            cachedUsers = await api('GET', '/api/users');
+            await loadAdminDashboard();
+        } catch (err) {
+            toast(err.message, 'error');
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    async function deleteUser(userId, userName) {
+        if (!confirm(`Delete user "${userName}"? This cannot be undone.`)) return;
+        try {
+            await api('DELETE', `/api/users/${userId}`);
+            toast('User deleted successfully');
+            cachedUsers = await api('GET', '/api/users');
+            await loadAdminDashboard();
+        } catch (err) {
+            toast(err.message, 'error');
+        }
+    }
+
+    // ============================================================
+    //  REGISTRATION FORMS (TRAINER)
+    // ============================================================
+
+    async function showRegistrationFormsModal() {
+        try {
+            const forms = await api('GET', '/api/registration-forms');
+            let html = forms.map(f => `
+                <div class="list-item" style="background:#f5f5f5;margin-bottom:1rem;border-radius:4px;padding:1rem;">
+                    <div class="list-content">
+                        <div class="list-title">${esc(f.form_name)}</div>
+                        <div class="list-subtitle">${esc(f.session_title)}</div>
+                        <div class="list-meta">
+                            Status: <strong>${f.form_status}</strong> •
+                            Share Link: <code style="background:#ddd;padding:2px 4px;border-radius:2px;">${f.share_link}</code>
+                        </div>
+                        <div style="margin-top:8px;font-size:12px;color:#666;">
+                            Copy form URL: <input type="text" value="${window.location.origin}/form/${f.share_link}" readonly style="width:300px;padding:4px;">
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:8px;">
+                        <button class="btn btn-sm btn-primary" onclick="loadFormSubmissions(${f.id}, '${esc(f.form_name)}')">View Submissions</button>
+                        <button class="btn btn-sm btn-secondary" onclick="copyToClipboard('${window.location.origin}/form/${f.share_link}')">Copy Link</button>
+                    </div>
+                </div>`).join('') || '<div class="empty-state">No registration forms yet</div>';
+
+            document.getElementById('forms-list').innerHTML = html;
+            openModal('formsManagerModal');
+        } catch (err) {
+            toast('Failed to load forms: ' + err.message, 'error');
+        }
+    }
+
+    function openCreateFormModal() {
+        const sessionSelect = document.getElementById('formSession');
+        sessionSelect.innerHTML = '<option value="">Select Session</option>' +
+            cachedSessions.map(s => `<option value="${s.id}">${esc(s.topic_title)} – ${formatDate(s.start_date)}</option>`).join('');
+        closeModal();
+        openModal('createFormModal');
+    }
+
+    async function submitCreateForm(e) {
+        e.preventDefault();
+        const form = e.target;
+        const btn = form.querySelector('button[type=submit]');
+        btn.disabled = true;
+        try {
+            const res = await api('POST', '/api/registration-forms', {
+                session_id: parseInt(form.formSession.value),
+                form_name: form.formName.value.trim(),
+                form_description: form.formDesc.value.trim() || null,
+            });
+            toast('Registration form created! Share link: ' + res.share_link);
+            closeModal();
+            form.reset();
+            await showRegistrationFormsModal();
+        } catch (err) {
+            toast(err.message, 'error');
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    async function loadFormSubmissions(formId, formName) {
+        try {
+            const submissions = await api('GET', `/api/registration-forms/${formId}/submissions`);
+            document.getElementById('submissionsTitle').textContent = `Submissions for "${formName}"`;
+
+            let html = submissions.map(s => `
+                <div style="background:#f9f9f9;padding:12px;margin-bottom:12px;border-radius:4px;border-left:4px solid ${
+                    s.approval_status === 'approved' ? '#4caf50' :
+                    s.approval_status === 'rejected' ? '#f44336' : '#ffc107'
+                };">
+                    <div><strong>${esc(s.full_name)}</strong> (${esc(s.job_title)})</div>
+                    <div style="font-size:12px;color:#666;">
+                        ${esc(s.health_facility)} • ${esc(s.region)} • ${esc(s.phone)} • ${esc(s.email)}
+                    </div>
+                    <div style="font-size:11px;color:#999;margin-top:4px;">
+                        Submitted: ${new Date(s.submitted_at).toLocaleString()}
+                    </div>
+                    ${s.approval_status === 'pending' ? `
+                        <div style="margin-top:8px;display:flex;gap:8px;">
+                            <button class="btn btn-sm btn-success" onclick="approveSubmission(${formId}, ${s.id})">Approve</button>
+                            <button class="btn btn-sm btn-danger" onclick="rejectSubmission(${formId}, ${s.id})">Reject</button>
+                        </div>
+                    ` : `
+                        <div style="margin-top:8px;font-size:12px;">
+                            <strong>Status:</strong> ${s.approval_status.toUpperCase()}
+                            ${s.rejection_reason ? ` • Reason: ${esc(s.rejection_reason)}` : ''}
+                        </div>
+                    `}
+                </div>`).join('') || '<div class="empty-state">No submissions yet</div>';
+
+            document.getElementById('submissions-list').innerHTML = html;
+            closeModal();
+            openModal('submissionsModal');
+        } catch (err) {
+            toast('Failed to load submissions: ' + err.message, 'error');
+        }
+    }
+
+    async function approveSubmission(formId, subId) {
+        try {
+            await api('PATCH', `/api/registration-forms/${formId}/submissions/${subId}`, {
+                approval_status: 'approved'
+            });
+            toast('Submission approved!');
+            await loadFormSubmissions(formId, 'Form');
+        } catch (err) {
+            toast(err.message, 'error');
+        }
+    }
+
+    async function rejectSubmission(formId, subId) {
+        const reason = prompt('Rejection reason (optional):');
+        try {
+            await api('PATCH', `/api/registration-forms/${formId}/submissions/${subId}`, {
+                approval_status: 'rejected',
+                rejection_reason: reason || null
+            });
+            toast('Submission rejected');
+            await loadFormSubmissions(formId, 'Form');
+        } catch (err) {
+            toast(err.message, 'error');
+        }
+    }
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text);
+        toast('Link copied to clipboard!');
+    }
+
+    function openEditSession(sessionId) {
+        const session = cachedSessions.find(s => s.id === sessionId);
+        if (!session) return;
+
+        document.getElementById('editSessionTopic').value = session.topic_id;
+        document.getElementById('editSessionFacility').value = session.health_facility_id;
+        document.getElementById('editSessionStart').value = session.start_date;
+        document.getElementById('editSessionEnd').value = session.end_date;
+        document.getElementById('editSessionMax').value = session.max_participants || 50;
+        document.getElementById('editSessionDetails').value = session.location_details || '';
+
+        document.getElementById('editSessionTopic').onchange = populateEditFacilities;
+        populateEditTopicsAndFacilities();
+        openModal('editSessionModal');
+        document.getElementById('editSessionModal')._sessionId = sessionId;
+    }
+
+    function populateEditTopicsAndFacilities() {
+        const topicSelect = document.getElementById('editSessionTopic');
+        topicSelect.innerHTML = '<option value="">Select Topic</option>' +
+            cachedTopics.map(t => `<option value="${t.id}">${esc(t.title)}</option>`).join('');
+        const session = cachedSessions.find(s => s.id === document.getElementById('editSessionModal')._sessionId);
+        if (session) topicSelect.value = session.topic_id;
+
+        populateEditFacilities();
+    }
+
+    function populateEditFacilities() {
+        const facilitySelect = document.getElementById('editSessionFacility');
+        facilitySelect.innerHTML = '<option value="">Select Facility</option>' +
+            cachedFacilities.map(f => `<option value="${f.id}">${esc(f.name)}</option>`).join('');
+        const session = cachedSessions.find(s => s.id === document.getElementById('editSessionModal')._sessionId);
+        if (session) facilitySelect.value = session.health_facility_id;
+    }
+
+    async function submitEditSession(e) {
+        e.preventDefault();
+        const form = e.target;
+        const btn = form.querySelector('button[type=submit]');
+        const sessionId = document.getElementById('editSessionModal')._sessionId;
+        btn.disabled = true;
+        try {
+            await api('PUT', `/api/sessions/${sessionId}`, {
+                topic_id:            parseInt(form.editSessionTopic.value),
+                health_facility_id:  parseInt(form.editSessionFacility.value),
+                start_date:          form.editSessionStart.value,
+                end_date:            form.editSessionEnd.value,
+                max_participants:    parseInt(form.editSessionMax.value) || 50,
+                location_details:    form.editSessionDetails.value,
+            });
+            toast('Session updated successfully!');
             closeModal();
             form.reset();
             await loadTrainerDashboard();

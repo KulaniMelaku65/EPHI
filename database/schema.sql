@@ -22,6 +22,17 @@ CREATE TABLE IF NOT EXISTS users (
     FOREIGN KEY (health_facility_id) REFERENCES health_facilities(id)
 );
 
+-- Regions table
+CREATE TABLE IF NOT EXISTS regions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE NOT NULL,
+    code TEXT UNIQUE,
+    description TEXT,
+    is_active BOOLEAN DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Health facilities table
 CREATE TABLE IF NOT EXISTS health_facilities (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -171,6 +182,40 @@ CREATE TABLE IF NOT EXISTS password_reset_tokens (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+-- Trainee registration forms (created by trainers)
+CREATE TABLE IF NOT EXISTS registration_forms (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    trainer_id INTEGER NOT NULL,
+    session_id INTEGER NOT NULL,
+    form_name TEXT NOT NULL,
+    form_status TEXT DEFAULT 'active' CHECK(form_status IN ('draft', 'active', 'closed')),
+    form_description TEXT,
+    share_link TEXT UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (trainer_id) REFERENCES users(id),
+    FOREIGN KEY (session_id) REFERENCES training_sessions(id)
+);
+
+-- Trainee form submissions
+CREATE TABLE IF NOT EXISTS registration_form_submissions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    form_id INTEGER NOT NULL,
+    full_name TEXT NOT NULL,
+    job_title TEXT NOT NULL,
+    health_facility TEXT NOT NULL,
+    region TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    email TEXT NOT NULL,
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    approval_status TEXT DEFAULT 'pending' CHECK(approval_status IN ('pending', 'approved', 'rejected')),
+    rejection_reason TEXT,
+    reviewed_at TIMESTAMP,
+    reviewed_by INTEGER,
+    FOREIGN KEY (form_id) REFERENCES registration_forms(id),
+    FOREIGN KEY (reviewed_by) REFERENCES users(id)
+);
+
 -- Create indexes for performance
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_role ON users(role);
@@ -181,6 +226,19 @@ CREATE INDEX idx_registrations_trainee ON training_registrations(trainee_id);
 CREATE INDEX idx_notifications_user ON notifications(user_id, is_read);
 
 -- Sample data for demonstration
+INSERT INTO regions (name, code, description) VALUES
+('Addis Ababa', 'AA', 'Capital city region'),
+('Oromia', 'OR', 'Oromia regional state'),
+('Amhara', 'AM', 'Amhara regional state'),
+('Somali', 'SO', 'Somali regional state'),
+('Tigray', 'TI', 'Tigray regional state'),
+('SNNPR', 'SN', 'Southern Nations, Nationalities and Peoples Region'),
+('Dire Dawa', 'DD', 'Dire Dawa city administration'),
+('Afar', 'AF', 'Afar regional state'),
+('Benishangul-Gumuz', 'BG', 'Benishangul-Gumuz regional state'),
+('Gambela', 'GA', 'Gambela regional state'),
+('Harari', 'HA', 'Harari regional state');
+
 INSERT INTO health_facilities (name, region, facility_type) VALUES
 ('Jimma University Medical Center', 'Oromia', 'Hospital'),
 ('Gondar Hospital', 'Amhara', 'Hospital'),

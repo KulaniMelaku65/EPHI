@@ -7,7 +7,9 @@
       "Bash(del \"c:\\\\Users\\\\kmelaku\\\\Desktop\\\\Codes\\\\EPHI\\\\database\\\\ephi_training.db\")",
       "Bash(python -c \"import flask; print\\('Flask OK'\\)\")",
       "Bash(python -c \"import flask_cors; print\\('CORS OK'\\)\")",
-      "Bash(python -c \"import jwt; print\\('JWT OK'\\)\")"
+      "Bash(python -c \"import jwt; print\\('JWT OK'\\)\")",
+      "Bash(python backend/app.py)",
+      "Bash(curl -s http://localhost:5000/api/stats)"
     ]
   }
 }

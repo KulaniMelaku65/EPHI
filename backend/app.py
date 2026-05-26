@@ -422,6 +422,135 @@ def create_user():
 
     return jsonify(response), 201
 
+@app.route('/api/users/me', methods=['GET'])
+@token_required
+def get_current_user():
+    db = get_db()
+    user = db.execute('''
+        SELECT id, email, full_name, phone, position, health_facility_id, region,
+               years_experience, education_level, profile_image, role, is_verified
+        FROM users WHERE id=?
+    ''', (request.user['id'],)).fetchone()
+
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    return jsonify(dict(user))
+
+@app.route('/api/users/me', methods=['PUT'])
+@token_required
+def update_current_user():
+    data = request.get_json()
+    db = get_db()
+
+    fields = []
+    values = []
+
+    if 'full_name' in data:
+        fields.append('full_name=?')
+        values.append(data['full_name'].strip())
+    if 'phone' in data:
+        fields.append('phone=?')
+        values.append(data['phone'].strip() or None)
+    if 'position' in data:
+        fields.append('position=?')
+        values.append(data['position'].strip() or None)
+    if 'region' in data:
+        fields.append('region=?')
+        values.append(data['region'].strip() or None)
+    if 'health_facility_id' in data:
+        facility_id = data['health_facility_id']
+        fields.append('health_facility_id=?')
+        values.append(facility_id if facility_id else None)
+    if 'years_experience' in data:
+        try:
+            yrs = int(data['years_experience'])
+            if 0 <= yrs <= 100:
+                fields.append('years_experience=?')
+                values.append(yrs)
+        except (ValueError, TypeError):
+            pass
+    if 'education_level' in data:
+        fields.append('education_level=?')
+        values.append(data['education_level'].strip() or None)
+
+    if not fields:
+        return jsonify({'error': 'No fields to update'}), 400
+
+    fields.append('updated_at=CURRENT_TIMESTAMP')
+    values.append(request.user['id'])
+
+    query = f"UPDATE users SET {', '.join(fields)} WHERE id=?"
+    db.execute(query, tuple(values))
+    db.commit()
+
+    return jsonify({'message': 'Profile updated successfully'})
+
+@app.route('/api/users', methods=['GET'])
+@token_required
+@role_required(['admin'])
+def get_all_users():
+    db = get_db()
+    users = db.execute('''
+        SELECT id, email, full_name, role, phone, position, region, health_facility_id, is_active, is_verified, created_at
+        FROM users ORDER BY created_at DESC
+    ''').fetchall()
+    return jsonify([dict(u) for u in users])
+
+@app.route('/api/users/<int:user_id>', methods=['PUT'])
+@token_required
+@role_required(['admin'])
+def update_user(user_id):
+    data = request.get_json()
+    db = get_db()
+
+    user = db.execute('SELECT id FROM users WHERE id=?', (user_id,)).fetchone()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    fields = []
+    values = []
+
+    if 'role' in data and data['role'] in ['admin', 'trainer', 'trainee', 'external']:
+        fields.append('role=?')
+        values.append(data['role'])
+    if 'is_active' in data:
+        fields.append('is_active=?')
+        values.append(1 if data['is_active'] else 0)
+    if 'health_facility_id' in data:
+        facility_id = data['health_facility_id']
+        fields.append('health_facility_id=?')
+        values.append(facility_id if facility_id else None)
+
+    if not fields:
+        return jsonify({'error': 'No fields to update'}), 400
+
+    fields.append('updated_at=CURRENT_TIMESTAMP')
+    values.append(user_id)
+
+    query = f"UPDATE users SET {', '.join(fields)} WHERE id=?"
+    db.execute(query, tuple(values))
+    db.commit()
+
+    return jsonify({'message': 'User updated successfully'})
+
+@app.route('/api/users/<int:user_id>', methods=['DELETE'])
+@token_required
+@role_required(['admin'])
+def delete_user(user_id):
+    if user_id == request.user['id']:
+        return jsonify({'error': 'Cannot delete your own account'}), 400
+
+    db = get_db()
+    user = db.execute('SELECT id FROM users WHERE id=?', (user_id,)).fetchone()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    db.execute('UPDATE users SET is_active=0, updated_at=CURRENT_TIMESTAMP WHERE id=?', (user_id,))
+    db.commit()
+
+    return jsonify({'message': 'User deleted successfully'})
+
 # ============ TRAINING TOPICS ENDPOINTS ============
 
 @app.route('/api/topics', methods=['GET'])
@@ -499,6 +628,206 @@ def create_session():
         send_email(admin['email'], 'New Training Session Created', email_body)
 
     return jsonify({'id': cursor.lastrowid, 'message': 'Session created successfully'}), 201
+
+@app.route('/api/sessions/<int:session_id>', methods=['PUT'])
+@token_required
+def update_session(session_id):
+    data = request.get_json()
+    db = get_db()
+
+    session = db.execute('SELECT trainer_id FROM training_sessions WHERE id=?', (session_id,)).fetchone()
+    if not session:
+        return jsonify({'error': 'Session not found'}), 404
+
+    if request.user['role'] != 'admin' and request.user['id'] != session['trainer_id']:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    if 'start_date' in data and 'end_date' in data:
+        if data['start_date'] >= data['end_date']:
+            return jsonify({'error': 'Start date must be before end date'}), 400
+
+    fields_to_update = []
+    values = []
+    if 'topic_id' in data:
+        fields_to_update.append('topic_id=?')
+        values.append(data['topic_id'])
+    if 'start_date' in data:
+        fields_to_update.append('start_date=?')
+        values.append(data['start_date'])
+    if 'end_date' in data:
+        fields_to_update.append('end_date=?')
+        values.append(data['end_date'])
+    if 'location_details' in data:
+        fields_to_update.append('location_details=?')
+        values.append(data['location_details'])
+    if 'max_participants' in data:
+        fields_to_update.append('max_participants=?')
+        values.append(data['max_participants'])
+    if 'health_facility_id' in data:
+        fields_to_update.append('health_facility_id=?')
+        values.append(data['health_facility_id'])
+
+    if not fields_to_update:
+        return jsonify({'error': 'No fields to update'}), 400
+
+    values.append(session_id)
+    query = f"UPDATE training_sessions SET {', '.join(fields_to_update)}, updated_at=CURRENT_TIMESTAMP WHERE id=?"
+    db.execute(query, tuple(values))
+    db.commit()
+
+    return jsonify({'message': 'Session updated successfully'})
+
+# ============ TRAINEE REGISTRATION FORM ENDPOINTS ============
+
+@app.route('/api/registration-forms', methods=['GET'])
+@token_required
+@role_required(['trainer', 'admin'])
+def get_registration_forms():
+    db = get_db()
+    if request.user['role'] == 'trainer':
+        forms = db.execute('''
+            SELECT rf.*, t.title as session_title
+            FROM registration_forms rf
+            JOIN training_sessions ts ON rf.session_id = ts.id
+            JOIN training_topics t ON ts.topic_id = t.id
+            WHERE rf.trainer_id = ? ORDER BY rf.created_at DESC
+        ''', (request.user['id'],)).fetchall()
+    else:
+        forms = db.execute('''
+            SELECT rf.*, t.title as session_title
+            FROM registration_forms rf
+            JOIN training_sessions ts ON rf.session_id = ts.id
+            JOIN training_topics t ON ts.topic_id = t.id
+            ORDER BY rf.created_at DESC
+        ''').fetchall()
+    return jsonify([dict(f) for f in forms])
+
+@app.route('/api/registration-forms', methods=['POST'])
+@token_required
+@role_required(['trainer'])
+def create_registration_form():
+    data = request.get_json()
+    required = ['session_id', 'form_name']
+    if not all(data.get(k) for k in required):
+        return jsonify({'error': 'session_id and form_name are required'}), 400
+
+    db = get_db()
+    session = db.execute('SELECT id, trainer_id FROM training_sessions WHERE id=?', (data['session_id'],)).fetchone()
+    if not session:
+        return jsonify({'error': 'Session not found'}), 404
+    if session['trainer_id'] != request.user['id']:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    share_link = generate_token(16).lower()
+    cursor = db.execute('''
+        INSERT INTO registration_forms (trainer_id, session_id, form_name, form_description, share_link)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (request.user['id'], data['session_id'], data['form_name'].strip(),
+          data.get('form_description', '').strip() or None, share_link))
+    db.commit()
+
+    return jsonify({
+        'id': cursor.lastrowid,
+        'share_link': share_link,
+        'form_url': f'/form/{share_link}',
+        'message': 'Registration form created successfully'
+    }), 201
+
+@app.route('/api/registration-forms/<int:form_id>/submissions', methods=['POST'])
+def submit_registration_form(form_id):
+    data = request.get_json()
+    required = ['full_name', 'job_title', 'health_facility', 'region', 'phone', 'email']
+    if not all(data.get(k) for k in required):
+        return jsonify({'error': 'All fields are required'}), 400
+
+    db = get_db()
+    form = db.execute('SELECT id, form_status FROM registration_forms WHERE id=?', (form_id,)).fetchone()
+    if not form:
+        return jsonify({'error': 'Form not found'}), 404
+    if form['form_status'] != 'active':
+        return jsonify({'error': 'This form is no longer accepting submissions'}), 400
+
+    cursor = db.execute('''
+        INSERT INTO registration_form_submissions (form_id, full_name, job_title, health_facility, region, phone, email)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ''', (form_id, data['full_name'].strip(), data['job_title'].strip(),
+          data['health_facility'].strip(), data['region'].strip(),
+          data['phone'].strip(), data['email'].strip()))
+    db.commit()
+
+    return jsonify({
+        'id': cursor.lastrowid,
+        'message': 'Registration submitted successfully. Awaiting trainer approval.'
+    }), 201
+
+@app.route('/api/registration-forms/<int:form_id>/submissions', methods=['GET'])
+@token_required
+def get_form_submissions(form_id):
+    db = get_db()
+    form = db.execute('SELECT trainer_id FROM registration_forms WHERE id=?', (form_id,)).fetchone()
+    if not form:
+        return jsonify({'error': 'Form not found'}), 404
+
+    if request.user['role'] != 'admin' and request.user['id'] != form['trainer_id']:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    submissions = db.execute('''
+        SELECT rfs.*, u.full_name as reviewed_by_name
+        FROM registration_form_submissions rfs
+        LEFT JOIN users u ON rfs.reviewed_by = u.id
+        WHERE rfs.form_id = ? ORDER BY rfs.submitted_at DESC
+    ''', (form_id,)).fetchall()
+
+    return jsonify([dict(s) for s in submissions])
+
+@app.route('/api/registration-forms/<int:form_id>/submissions/<int:sub_id>', methods=['PATCH'])
+@token_required
+@role_required(['trainer', 'admin'])
+def review_form_submission(form_id, sub_id):
+    data = request.get_json()
+    if data.get('approval_status') not in ['approved', 'rejected']:
+        return jsonify({'error': 'approval_status must be "approved" or "rejected"'}), 400
+
+    db = get_db()
+    form = db.execute('SELECT trainer_id FROM registration_forms WHERE id=?', (form_id,)).fetchone()
+    if not form:
+        return jsonify({'error': 'Form not found'}), 404
+
+    if request.user['role'] != 'admin' and request.user['id'] != form['trainer_id']:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    submission = db.execute(
+        'SELECT id FROM registration_form_submissions WHERE id=? AND form_id=?',
+        (sub_id, form_id)
+    ).fetchone()
+    if not submission:
+        return jsonify({'error': 'Submission not found'}), 404
+
+    db.execute('''
+        UPDATE registration_form_submissions
+        SET approval_status=?, rejection_reason=?, reviewed_by=?, reviewed_at=CURRENT_TIMESTAMP
+        WHERE id=?
+    ''', (data['approval_status'], data.get('rejection_reason', None), request.user['id'], sub_id))
+    db.commit()
+
+    return jsonify({'message': f'Submission {data["approval_status"]} successfully'})
+
+@app.route('/api/registration-forms/<form_link>/public', methods=['GET'])
+def get_public_form(form_link):
+    db = get_db()
+    form = db.execute('''
+        SELECT rf.*, t.title as session_title, u.full_name as trainer_name
+        FROM registration_forms rf
+        JOIN training_sessions ts ON rf.session_id = ts.id
+        JOIN training_topics t ON ts.topic_id = t.id
+        JOIN users u ON rf.trainer_id = u.id
+        WHERE rf.share_link = ? AND rf.form_status = 'active'
+    ''', (form_link,)).fetchone()
+
+    if not form:
+        return jsonify({'error': 'Form not found or no longer accepting submissions'}), 404
+
+    return jsonify(dict(form))
 
 # ============ REGISTRATION ENDPOINTS ============
 
@@ -697,6 +1026,88 @@ def get_facilities():
     else:
         facilities = db.execute('SELECT * FROM health_facilities').fetchall()
     return jsonify([dict(f) for f in facilities])
+
+# ============ REGIONS ENDPOINTS ============
+
+@app.route('/api/regions', methods=['GET'])
+@token_required
+def get_regions():
+    db = get_db()
+    regions = db.execute('SELECT * FROM regions WHERE is_active=1 ORDER BY name').fetchall()
+    return jsonify([dict(r) for r in regions])
+
+@app.route('/api/regions', methods=['POST'])
+@token_required
+@role_required(['admin'])
+def create_region():
+    data = request.get_json()
+    if not data.get('name'):
+        return jsonify({'error': 'Region name is required'}), 400
+
+    db = get_db()
+    try:
+        cursor = db.execute(
+            'INSERT INTO regions (name, code, description) VALUES (?, ?, ?)',
+            (data['name'].strip(), data.get('code', '').strip() or None, data.get('description', '').strip() or None)
+        )
+        db.commit()
+        return jsonify({'id': cursor.lastrowid, 'message': 'Region created successfully'}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/api/regions/<int:region_id>', methods=['DELETE'])
+@token_required
+@role_required(['admin'])
+def delete_region(region_id):
+    db = get_db()
+    region = db.execute('SELECT id FROM regions WHERE id=?', (region_id,)).fetchone()
+    if not region:
+        return jsonify({'error': 'Region not found'}), 404
+
+    db.execute('UPDATE regions SET is_active=0, updated_at=CURRENT_TIMESTAMP WHERE id=?', (region_id,))
+    db.commit()
+    return jsonify({'message': 'Region deleted successfully'})
+
+@app.route('/api/regions/<int:region_id>', methods=['PUT'])
+@token_required
+@role_required(['admin'])
+def update_region(region_id):
+    data = request.get_json()
+    db = get_db()
+    region = db.execute('SELECT id FROM regions WHERE id=?', (region_id,)).fetchone()
+    if not region:
+        return jsonify({'error': 'Region not found'}), 404
+
+    fields = []
+    values = []
+    if 'name' in data:
+        fields.append('name=?')
+        values.append(data['name'].strip())
+    if 'code' in data:
+        fields.append('code=?')
+        values.append(data['code'].strip() or None)
+    if 'description' in data:
+        fields.append('description=?')
+        values.append(data['description'].strip() or None)
+
+    if not fields:
+        return jsonify({'error': 'No fields to update'}), 400
+
+    fields.append('updated_at=CURRENT_TIMESTAMP')
+    values.append(region_id)
+    query = f"UPDATE regions SET {', '.join(fields)} WHERE id=?"
+    db.execute(query, tuple(values))
+    db.commit()
+    return jsonify({'message': 'Region updated successfully'})
+
+# ============ STATIC FILES ============
+
+@app.route('/logo.png')
+def serve_logo():
+    logo_path = os.path.join(BASE_DIR, 'logo.png')
+    if os.path.exists(logo_path):
+        return send_file(logo_path, mimetype='image/png')
+    return jsonify({'error': 'Logo not found'}), 404
 
 # ============ MAIN ROUTE ============
 
