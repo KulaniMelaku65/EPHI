@@ -134,9 +134,29 @@ def generate_token(length=8):
     alphabet = string.ascii_uppercase + string.digits
     return ''.join(secrets.choice(alphabet) for _ in range(length))
 
+# ===== PASSWORD HASHING (SECURITY FIX #3) =====
+# Upgraded from SHA-256 to bcrypt for much better security
+
+def hash_password(password):
+    """Hash password using bcrypt (secure)."""
+    salt = bcrypt.gensalt(rounds=12)
+    return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+
+def verify_password(password, password_hash):
+    """Verify password against bcrypt hash."""
+    try:
+        return bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8'))
+    except:
+        return False
+
+def hash_password_legacy(password):
+    """SHA-256 hashing (LEGACY - only for existing passwords during migration)."""
+    return hashlib.sha256(password.encode()).hexdigest()
+
 # ============ AUTHENTICATION ENDPOINTS ============
 
 @app.route('/api/auth/login', methods=['POST'])
+@limiter.limit("5 per minute")  # Max 5 login attempts per minute per IP
 def login():
     data = request.get_json()
     email = data.get('email', '').strip().lower()
@@ -154,8 +174,23 @@ def login():
     if not user:
         return jsonify({'error': 'Invalid email or password'}), 401
 
-    password_hash = hashlib.sha256(password.encode()).hexdigest()
-    if user['password_hash'] != password_hash:
+    # Support both bcrypt (new) and SHA-256 (legacy) password hashes
+    password_valid = False
+    if user['password_hash'].startswith('$2b$'):
+        # Bcrypt hash (new, secure)
+        password_valid = verify_password(password, user['password_hash'])
+    else:
+        # SHA-256 hash (legacy, for migration)
+        password_hash_legacy = hash_password_legacy(password)
+        password_valid = user['password_hash'] == password_hash_legacy
+
+        # Auto-upgrade legacy passwords to bcrypt on successful login
+        if password_valid:
+            new_hash = hash_password(password)
+            db.execute('UPDATE users SET password_hash = ? WHERE id = ?', (new_hash, user['id']))
+            db.commit()
+
+    if not password_valid:
         return jsonify({'error': 'Invalid email or password'}), 401
 
     if not user['is_active']:
@@ -256,7 +291,8 @@ def reset_password():
     if not record:
         return jsonify({'error': 'Invalid or expired reset code'}), 400
 
-    new_hash = hashlib.sha256(new_password.encode()).hexdigest()
+    # Use bcrypt for new password hash (secure)
+    new_hash = hash_password(new_password)
     db.execute('UPDATE users SET password_hash = ? WHERE id = ?', (new_hash, user['id']))
     db.execute('UPDATE password_reset_tokens SET used = 1 WHERE id = ?', (record['id'],))
     db.commit()
@@ -407,7 +443,8 @@ def create_user():
     if existing:
         return jsonify({'error': 'Email is already registered'}), 400
 
-    password_hash = hashlib.sha256(data['password'].encode()).hexdigest()
+    # Use bcrypt for new password hashes (secure)
+    password_hash = hash_password(data['password'])
 
     cursor = db.execute(
         '''INSERT INTO users (email, password_hash, full_name, role, phone, position, region, health_facility_id, is_verified)
@@ -1126,6 +1163,31 @@ def update_region(region_id):
     db.execute(query, tuple(values))
     db.commit()
     return jsonify({'message': 'Region updated successfully'})
+
+# ===== HTTPS & SECURITY HEADERS (SECURITY FIX #4) =====
+@app.after_request
+def set_security_headers(response):
+    """Add security headers to all responses."""
+    # HTTPS enforcement (production only)
+    if not app.debug:
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
+
+    # Prevent clickjacking attacks
+    response.headers['X-Frame-Options'] = 'DENY'
+
+    # Prevent MIME type sniffing
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+
+    # Enable XSS protection
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+
+    # Content Security Policy (CSP) - restrict resource loading
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src fonts.gstatic.com"
+
+    # Prevent referrer leakage
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+
+    return response
 
 # ============ STATIC FILES ============
 
