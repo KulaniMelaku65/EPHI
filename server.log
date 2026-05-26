@@ -1,0 +1,23 @@
+============================================================
+EPHI Training Management System
+Server: http://localhost:5000
+Press Ctrl+C to stop
+============================================================
+ * Serving Flask app 'app'
+ * Debug mode: on
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.8.49:5000
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 107-013-809
+127.0.0.1 - - [26/May/2026 11:39:35] "GET /api/stats HTTP/1.1" 404 -
+127.0.0.1 - - [26/May/2026 11:39:44] "GET /api/stats HTTP/1.1" 404 -
+127.0.0.1 - - [26/May/2026 11:39:55] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [26/May/2026 11:39:56] "POST /api/login HTTP/1.1" 404 -
+C:\Users\kmelaku\Desktop\Codes\EPHI\backend\app.py:141: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7)
+127.0.0.1 - - [26/May/2026 11:40:16] "POST /api/auth/login HTTP/1.1" 200 -
+127.0.0.1 - - [26/May/2026 11:40:27] "GET /api/dashboard/stats HTTP/1.1" 200 -

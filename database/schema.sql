@@ -2,7 +2,7 @@
 -- SQLite Database
 
 -- Users table with role-based access
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE users (
 );
 
 -- Health facilities table
-CREATE TABLE health_facilities (
+CREATE TABLE IF NOT EXISTS health_facilities (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     region TEXT NOT NULL,
@@ -36,7 +36,7 @@ CREATE TABLE health_facilities (
 );
 
 -- Training topics table
-CREATE TABLE training_topics (
+CREATE TABLE IF NOT EXISTS training_topics (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     description TEXT,
@@ -52,7 +52,7 @@ CREATE TABLE training_topics (
 );
 
 -- Training sessions table
-CREATE TABLE training_sessions (
+CREATE TABLE IF NOT EXISTS training_sessions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     topic_id INTEGER NOT NULL,
     trainer_id INTEGER NOT NULL,
@@ -72,7 +72,7 @@ CREATE TABLE training_sessions (
 );
 
 -- Training registrations table
-CREATE TABLE training_registrations (
+CREATE TABLE IF NOT EXISTS training_registrations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     session_id INTEGER NOT NULL,
     trainee_id INTEGER NOT NULL,
@@ -91,7 +91,7 @@ CREATE TABLE training_registrations (
 );
 
 -- Funding requests table
-CREATE TABLE funding_requests (
+CREATE TABLE IF NOT EXISTS funding_requests (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     trainer_id INTEGER NOT NULL,
     topic_id INTEGER NOT NULL,
@@ -112,7 +112,7 @@ CREATE TABLE funding_requests (
 );
 
 -- Certificates table
-CREATE TABLE certificates (
+CREATE TABLE IF NOT EXISTS certificates (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     registration_id INTEGER NOT NULL,
     certificate_number TEXT UNIQUE NOT NULL,
@@ -124,7 +124,7 @@ CREATE TABLE certificates (
 );
 
 -- Notifications table
-CREATE TABLE notifications (
+CREATE TABLE IF NOT EXISTS notifications (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
     type TEXT CHECK(type IN ('training_reminder', 'registration_confirmed', 'certificate_ready', 'funding_update', 'system_announcement')),
@@ -136,7 +136,7 @@ CREATE TABLE notifications (
 );
 
 -- Email logs table
-CREATE TABLE email_logs (
+CREATE TABLE IF NOT EXISTS email_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     recipient_email TEXT NOT NULL,
     subject TEXT NOT NULL,
@@ -147,7 +147,7 @@ CREATE TABLE email_logs (
 );
 
 -- Analytics table for tracking system usage
-CREATE TABLE analytics_log (
+CREATE TABLE IF NOT EXISTS analytics_log (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER,
     action_type TEXT,
@@ -160,7 +160,7 @@ CREATE TABLE analytics_log (
 );
 
 -- Password reset / email verification tokens
-CREATE TABLE password_reset_tokens (
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
     token TEXT UNIQUE NOT NULL,

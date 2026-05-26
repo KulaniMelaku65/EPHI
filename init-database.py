@@ -77,7 +77,7 @@ def init_database():
 
         conn.commit()
         print()
-        print("✓ Database created successfully!")
+        print("[OK] Database created successfully!")
         print()
         print("Database location:", os.path.abspath(db_path))
         
@@ -98,7 +98,7 @@ def init_database():
         print(f"  - {topic_count} training topics")
         print()
         print("=" * 50)
-        print("✓ Setup complete!")
+        print("[OK] Setup complete!")
         print("=" * 50)
         print()
         print("Next step: Start the server")
@@ -110,7 +110,7 @@ def init_database():
         
     except Exception as e:
         print()
-        print("✗ ERROR creating database:")
+        print("[ERROR] Creating database:")
         print(str(e))
         print()
         
