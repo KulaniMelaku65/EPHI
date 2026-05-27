@@ -119,10 +119,13 @@
         }
         .login-header { text-align: center; margin-bottom: 2.5rem; }
         .login-logo {
-            width: 64px; height: 64px; background: var(--primary); border-radius: 12px;
+            width: 80px; height: 80px; border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 1rem; font-weight: 700; font-size: 28px; color: white;
+            margin: 0 auto 1rem; overflow: hidden;
+            background: white; border: 2px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
+        .login-logo img { width: 100%; height: 100%; object-fit: contain; }
         .login-title { font-family: 'DM Serif Display', serif; font-size: 28px; margin-bottom: 0.5rem; }
         .login-subtitle { font-size: 14px; color: var(--text-secondary); }
         .login-footer {
@@ -373,6 +376,45 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .fade-in { animation: fadeIn 0.4s ease-out; }
+
+        /* ===== MEDIA LIBRARY ===== */
+        .media-tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 1.5rem; }
+        .media-tab {
+            padding: 0.6rem 1.25rem; border: none; background: none;
+            cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 500;
+            color: var(--text-secondary); border-bottom: 2px solid transparent; margin-bottom: -2px;
+        }
+        .media-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; }
+        .file-card {
+            border: 1px solid var(--border); border-radius: 8px; padding: 1rem;
+            text-align: center; transition: all 0.2s; position: relative;
+        }
+        .file-card:hover { border-color: var(--primary); box-shadow: var(--shadow); }
+        .file-icon { font-size: 38px; margin-bottom: 0.5rem; display: block; }
+        .file-name { font-size: 12px; word-break: break-all; margin-bottom: 0.4rem; font-weight: 500; }
+        .file-meta { font-size: 11px; color: var(--text-muted); margin-bottom: 0.5rem; }
+        .file-del { position: absolute; top: 4px; right: 4px; background: none; border: none; font-size: 14px; cursor: pointer; color: var(--text-muted); opacity: 0; }
+        .file-card:hover .file-del { opacity: 1; }
+        .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.75rem; }
+        .photo-item { position: relative; border-radius: 8px; overflow: hidden; aspect-ratio: 4/3; background: var(--bg-main); cursor: pointer; }
+        .photo-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.2s; display: block; }
+        .photo-item:hover img { transform: scale(1.05); }
+        .photo-caption { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.6); color: white; font-size: 11px; padding: 0.3rem 0.5rem; }
+        .photo-del { position: absolute; top: 4px; right: 4px; background: rgba(232,93,58,0.9); color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; padding: 2px 6px; display: none; }
+        .photo-item:hover .photo-del { display: block; }
+        .upload-zone {
+            border: 2px dashed var(--border); border-radius: 8px; padding: 1.75rem;
+            text-align: center; color: var(--text-muted); cursor: pointer; transition: all 0.2s; margin-bottom: 1rem;
+        }
+        .upload-zone:hover { border-color: var(--primary); color: var(--primary); background: rgba(74,144,226,0.04); }
+        .upload-zone input[type=file] { display: none; }
+        .lightbox-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+            z-index: 500; display: flex; align-items: center; justify-content: center;
+        }
+        .lightbox-overlay img { max-width: 90vw; max-height: 90vh; border-radius: 4px; }
+        .lightbox-close { position: absolute; top: 1rem; right: 1.5rem; color: white; font-size: 32px; cursor: pointer; background: none; border: none; }
     </style>
 </head>
 <body>
@@ -382,7 +424,7 @@
     <div id="loginPage" class="login-container">
         <div class="login-box fade-in">
             <div class="login-header">
-                <div class="login-logo">EP</div>
+                <div class="login-logo"><img src="/logo.png" alt="EPHI Logo"></div>
                 <h1 class="login-title">EPHI Training System</h1>
                 <p class="login-subtitle">Ethiopian Public Health Institute</p>
             </div>
@@ -423,6 +465,90 @@
                     <div class="demo-role-name">External User</div>
                     <div class="demo-role-creds" onclick="fillLogin('external@who.int','external123')">external@who.int / external123</div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== PUBLIC REGISTRATION FORM ===================== -->
+    <div id="publicFormPage" class="hidden" style="min-height:100vh;background:var(--bg-main);padding:2rem 1rem;">
+        <div style="max-width:600px;margin:0 auto;">
+            <div style="text-align:center;margin-bottom:2rem;">
+                <div style="display:inline-flex;align-items:center;gap:0.75rem;background:white;padding:1rem 1.5rem;border-radius:12px;box-shadow:var(--shadow);">
+                    <img src="/logo.png" alt="EPHI" style="width:40px;height:40px;object-fit:contain;">
+                    <div>
+                        <div style="font-family:'DM Serif Display',serif;font-size:18px;">EPHI Training System</div>
+                        <div style="font-size:11px;color:var(--text-muted);">Ethiopian Public Health Institute</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading state -->
+            <div id="pfLoading" class="card" style="text-align:center;padding:3rem;">Loading form…</div>
+
+            <!-- Error state -->
+            <div id="pfError" class="card hidden" style="text-align:center;padding:3rem;">
+                <div style="font-size:40px;margin-bottom:1rem;">⚠️</div>
+                <div id="pfErrorMsg" style="color:var(--danger);font-weight:500;"></div>
+            </div>
+
+            <!-- Form -->
+            <div id="pfForm" class="card hidden">
+                <div style="margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);">
+                    <h2 style="font-family:'DM Serif Display',serif;font-size:22px;" id="pfFormName"></h2>
+                    <p style="font-size:14px;color:var(--text-secondary);margin-top:0.25rem;" id="pfFormDesc"></p>
+                    <div style="margin-top:0.75rem;display:flex;gap:1rem;flex-wrap:wrap;">
+                        <span class="badge badge-info" id="pfSessionTitle"></span>
+                        <span class="badge badge-secondary" id="pfTrainerName"></span>
+                    </div>
+                </div>
+
+                <div id="pfFormError" class="inline-error hidden"></div>
+
+                <form id="publicRegistrationForm" onsubmit="submitPublicForm(event)">
+                    <input type="hidden" id="pfFormId">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Full Name <span style="color:var(--danger)">*</span></label>
+                            <input type="text" class="form-input" name="full_name" required placeholder="Your full name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Job Title <span style="color:var(--danger)">*</span></label>
+                            <input type="text" class="form-input" name="job_title" required placeholder="e.g. Laboratory Technician">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Health Facility <span style="color:var(--danger)">*</span></label>
+                            <input type="text" class="form-input" name="health_facility" required placeholder="Name of your facility">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Region <span style="color:var(--danger)">*</span></label>
+                            <input type="text" class="form-input" name="region" required placeholder="e.g. Oromia">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Phone Number <span style="color:var(--danger)">*</span></label>
+                            <input type="tel" class="form-input" name="phone" required placeholder="+251...">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email Address <span style="color:var(--danger)">*</span></label>
+                            <input type="email" class="form-input" name="email" required placeholder="your@email.com">
+                        </div>
+                    </div>
+                    <button type="submit" class="login-btn" id="pfSubmitBtn" style="margin-top:0.5rem;">Submit Registration</button>
+                </form>
+            </div>
+
+            <!-- Success state -->
+            <div id="pfSuccess" class="card hidden" style="text-align:center;padding:3rem;">
+                <div style="font-size:48px;margin-bottom:1rem;">✅</div>
+                <h3 style="font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:0.75rem;">Registration Submitted!</h3>
+                <p style="color:var(--text-secondary);font-size:14px;">
+                    Your registration has been submitted and is awaiting approval from the trainer.
+                    Once approved, you will receive an email with your login credentials.
+                </p>
+                <p style="color:var(--text-muted);font-size:12px;margin-top:1rem;">You may close this page.</p>
             </div>
         </div>
     </div>
@@ -745,11 +871,11 @@
                                 <thead>
                                     <tr>
                                         <th>Topic</th><th>Trainer</th><th>Location</th>
-                                        <th>Date</th><th>Participants</th><th>Status</th>
+                                        <th>Date</th><th>Participants</th><th>Status</th><th></th>
                                     </tr>
                                 </thead>
                                 <tbody id="external-sessions-tbody">
-                                    <tr><td colspan="6" class="empty-state">Loading…</td></tr>
+                                    <tr><td colspan="7" class="empty-state">Loading…</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -766,8 +892,49 @@
         </main>
     </div><!-- /mainApp -->
 
+    <!-- ===================== LIGHTBOX ===================== -->
+    <div id="lightbox" class="lightbox-overlay hidden" onclick="closeLightbox()">
+        <button class="lightbox-close">&times;</button>
+        <img id="lightboxImg" src="" alt="">
+    </div>
+
     <!-- ===================== MODALS ===================== -->
     <div id="modalOverlay" class="modal-overlay hidden" onclick="handleOverlayClick(event)">
+
+        <!-- MATERIALS & PHOTOS MODAL -->
+        <div id="materialsModal" class="modal-box hidden" style="max-width:720px">
+            <div class="modal-header">
+                <h3 class="modal-title" id="materialsModalTitle">Training Materials &amp; Photos</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+
+            <div class="media-tabs">
+                <button class="media-tab active" id="tabDocs" onclick="switchMediaTab('docs')">Documents</button>
+                <button class="media-tab" id="tabPhotos" onclick="switchMediaTab('photos')">Photos</button>
+            </div>
+
+            <!-- Documents panel -->
+            <div id="panelDocs">
+                <div id="uploadDocZone" class="upload-zone hidden" onclick="document.getElementById('docFileInput').click()">
+                    <div style="font-size:32px;margin-bottom:.5rem">📄</div>
+                    <div style="font-weight:500;margin-bottom:.25rem">Click to upload a document</div>
+                    <div style="font-size:12px">PDF, Word, Excel, PowerPoint, TXT &bull; Max 16 MB</div>
+                    <input type="file" id="docFileInput" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt" onchange="handleDocUpload(event)">
+                </div>
+                <div id="docsList"><div class="empty-state">Loading…</div></div>
+            </div>
+
+            <!-- Photos panel -->
+            <div id="panelPhotos" class="hidden">
+                <div id="uploadPhotoZone" class="upload-zone hidden" onclick="document.getElementById('photoFileInput').click()">
+                    <div style="font-size:32px;margin-bottom:.5rem">📷</div>
+                    <div style="font-weight:500;margin-bottom:.25rem">Click to upload photos</div>
+                    <div style="font-size:12px">JPG, PNG, GIF, WebP &bull; Max 16 MB each</div>
+                    <input type="file" id="photoFileInput" accept="image/*" multiple onchange="handlePhotoUpload(event)">
+                </div>
+                <div id="photosList"><div class="empty-state">Loading…</div></div>
+            </div>
+        </div>
 
         <!-- FORGOT PASSWORD (2-step) -->
         <div id="forgotPasswordModal" class="modal-box modal-sm hidden">
@@ -1587,7 +1754,8 @@
                             ${s.registered_count}/${s.max_participants} registered
                         </div>
                     </div>
-                    <div style="display: flex; gap: 8px; align-items: center;">
+                    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                        <button class="btn btn-sm btn-secondary" onclick="openMaterialsModal(${s.id}, '${esc(s.topic_title)}', true)">Materials</button>
                         <button class="btn btn-sm btn-secondary" onclick="openEditSession(${s.id})">Edit</button>
                         ${statusBadge(s.status)}
                     </div>
@@ -1603,7 +1771,10 @@
                             ${s.registered_count} participants
                         </div>
                     </div>
-                    ${statusBadge(s.status)}
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <button class="btn btn-sm btn-secondary" onclick="openMaterialsModal(${s.id}, '${esc(s.topic_title)}', true)">Materials</button>
+                        ${statusBadge(s.status)}
+                    </div>
                 </div>`).join('') || '<div class="empty-state">No completed sessions yet</div>';
 
             document.getElementById('trainer-funding-list').innerHTML = funding.map(f => `
@@ -1678,9 +1849,10 @@
                             ${s.registered_count}/${s.max_participants} registered
                         </div>
                     </div>
-                    <button class="btn btn-primary btn-sm"
-                        data-session-id="${s.id}"
-                        onclick="registerForSession(this)">Register</button>
+                    <div style="display:flex;gap:6px;flex-direction:column;align-items:flex-end;">
+                        <button class="btn btn-primary btn-sm" data-session-id="${s.id}" onclick="registerForSession(this)">Register</button>
+                        <button class="btn btn-xs btn-secondary" onclick="openMaterialsModal(${s.id}, '${esc(s.topic_title)}', false)">Materials &amp; Photos</button>
+                    </div>
                 </div>`).join('') || '<div class="empty-state">No available trainings at this time</div>';
 
             // Certificates (completed registrations)
@@ -1750,7 +1922,8 @@
                 <td>${formatDate(s.start_date)} – ${formatDate(s.end_date)}</td>
                 <td>${s.registered_count}</td>
                 <td>${statusBadge(s.status)}</td>
-            </tr>`).join('') || '<tr><td colspan="6" class="empty-state">No sessions found</td></tr>';
+                <td><button class="btn btn-xs btn-secondary" onclick="openMaterialsModal(${s.id}, '${esc(s.topic_title)}', false)">Materials &amp; Photos</button></td>
+            </tr>`).join('') || '<tr><td colspan="7" class="empty-state">No sessions found</td></tr>';
     }
 
     function filterSessions() {
@@ -2286,10 +2459,15 @@
 
     async function approveSubmission(formId, subId) {
         try {
-            await api('PATCH', `/api/registration-forms/${formId}/submissions/${subId}`, {
+            const res = await api('PATCH', `/api/registration-forms/${formId}/submissions/${subId}`, {
                 approval_status: 'approved'
             });
-            toast('Submission approved!');
+            let msg = 'Approved! Trainee registered for the session.';
+            if (res.demo_password) {
+                msg = `Approved! Temp password for trainee: ${res.demo_password} (email not configured — share this with them)`;
+                alert(`Trainee approved and registered.\n\nTheir temporary login password is:\n\n${res.demo_password}\n\nShare this with them so they can log in.`);
+            }
+            toast(msg);
             await loadFormSubmissions(formId, 'Form');
         } catch (err) {
             toast(err.message, 'error');
@@ -2603,9 +2781,253 @@
     }
 
     // ============================================================
+    //  MATERIALS & IMAGES
+    // ============================================================
+    let activeMaterialsSession = null;
+    let canManageMaterials = false;
+    let activeMediaTab = 'docs';
+
+    async function apiUpload(path, formData) {
+        const res = await fetch(path, {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + authToken },
+            body: formData,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Upload failed');
+        return data;
+    }
+
+    function openMaterialsModal(sessionId, sessionTitle, canManage) {
+        activeMaterialsSession = sessionId;
+        canManageMaterials = canManage;
+        activeMediaTab = 'docs';
+        document.getElementById('materialsModalTitle').textContent = sessionTitle + ' — Materials & Photos';
+        document.getElementById('tabDocs').classList.add('active');
+        document.getElementById('tabPhotos').classList.remove('active');
+        document.getElementById('panelDocs').classList.remove('hidden');
+        document.getElementById('panelPhotos').classList.add('hidden');
+        document.getElementById('uploadDocZone').classList.toggle('hidden', !canManage);
+        document.getElementById('uploadPhotoZone').classList.toggle('hidden', !canManage);
+        openModal('materialsModal');
+        loadDocs();
+    }
+
+    function switchMediaTab(tab) {
+        activeMediaTab = tab;
+        document.getElementById('tabDocs').classList.toggle('active', tab === 'docs');
+        document.getElementById('tabPhotos').classList.toggle('active', tab === 'photos');
+        document.getElementById('panelDocs').classList.toggle('hidden', tab !== 'docs');
+        document.getElementById('panelPhotos').classList.toggle('hidden', tab !== 'photos');
+        if (tab === 'docs') loadDocs();
+        else loadPhotos();
+    }
+
+    function fileIcon(ext) {
+        const icons = { pdf: '📕', doc: '📘', docx: '📘', ppt: '📙', pptx: '📙',
+                        xls: '📗', xlsx: '📗', txt: '📄' };
+        return icons[ext] || '📎';
+    }
+
+    function humanSize(bytes) {
+        if (!bytes) return '';
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+        return (bytes/1024/1024).toFixed(1) + ' MB';
+    }
+
+    async function loadDocs() {
+        const el = document.getElementById('docsList');
+        el.innerHTML = '<div class="empty-state">Loading…</div>';
+        try {
+            const mats = await api('GET', `/api/sessions/${activeMaterialsSession}/materials`);
+            if (!mats.length) {
+                el.innerHTML = '<div class="empty-state">No documents uploaded yet.</div>';
+                return;
+            }
+            el.innerHTML = '<div class="file-grid">' + mats.map(m => `
+                <div class="file-card" id="mat-${m.id}">
+                    ${canManageMaterials ? `<button class="file-del" title="Delete" onclick="deleteMat(${m.id})">✕</button>` : ''}
+                    <span class="file-icon">${fileIcon(m.file_type)}</span>
+                    <div class="file-name">${esc(m.original_name)}</div>
+                    <div class="file-meta">${humanSize(m.file_size)} &bull; ${m.file_type.toUpperCase()}</div>
+                    ${m.description ? `<div class="file-meta">${esc(m.description)}</div>` : ''}
+                    <a href="/api/materials/${m.id}/download?token=${encodeURIComponent(authToken)}"
+                       class="btn btn-xs btn-secondary" style="width:100%;justify-content:center;margin-top:4px"
+                       download="${esc(m.original_name)}">Download</a>
+                </div>`).join('') + '</div>';
+        } catch (err) {
+            el.innerHTML = `<div class="empty-state">${err.message}</div>`;
+        }
+    }
+
+    async function loadPhotos() {
+        const el = document.getElementById('photosList');
+        el.innerHTML = '<div class="empty-state">Loading…</div>';
+        try {
+            const imgs = await api('GET', `/api/sessions/${activeMaterialsSession}/images`);
+            if (!imgs.length) {
+                el.innerHTML = '<div class="empty-state">No photos uploaded yet.</div>';
+                return;
+            }
+            el.innerHTML = '<div class="photo-grid">' + imgs.map(i => `
+                <div class="photo-item" id="img-${i.id}">
+                    <img src="/api/images/${i.id}/view?token=${encodeURIComponent(authToken)}"
+                         alt="${esc(i.caption || i.original_name)}"
+                         onclick="openLightbox('/api/images/${i.id}/view?token=${encodeURIComponent(authToken)}')">
+                    ${i.caption ? `<div class="photo-caption">${esc(i.caption)}</div>` : ''}
+                    ${canManageMaterials ? `<button class="photo-del" onclick="deleteImg(${i.id})">✕</button>` : ''}
+                </div>`).join('') + '</div>';
+        } catch (err) {
+            el.innerHTML = `<div class="empty-state">${err.message}</div>`;
+        }
+    }
+
+    async function handleDocUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const fd = new FormData();
+        fd.append('file', file);
+        try {
+            await apiUpload(`/api/sessions/${activeMaterialsSession}/materials`, fd);
+            toast('Document uploaded!');
+            event.target.value = '';
+            await loadDocs();
+        } catch (err) {
+            toast(err.message, 'error');
+        }
+    }
+
+    async function handlePhotoUpload(event) {
+        const files = Array.from(event.target.files);
+        if (!files.length) return;
+        let uploaded = 0;
+        for (const file of files) {
+            const fd = new FormData();
+            fd.append('file', file);
+            try {
+                await apiUpload(`/api/sessions/${activeMaterialsSession}/images`, fd);
+                uploaded++;
+            } catch (err) {
+                toast(`${file.name}: ${err.message}`, 'error');
+            }
+        }
+        if (uploaded) toast(`${uploaded} photo(s) uploaded!`);
+        event.target.value = '';
+        await loadPhotos();
+    }
+
+    async function deleteMat(matId) {
+        if (!confirm('Delete this document?')) return;
+        try {
+            await api('DELETE', `/api/materials/${matId}`);
+            document.getElementById('mat-' + matId)?.remove();
+            toast('Document deleted');
+            if (!document.querySelectorAll('#docsList .file-card').length) {
+                document.getElementById('docsList').innerHTML = '<div class="empty-state">No documents uploaded yet.</div>';
+            }
+        } catch (err) { toast(err.message, 'error'); }
+    }
+
+    async function deleteImg(imgId) {
+        if (!confirm('Delete this photo?')) return;
+        try {
+            await api('DELETE', `/api/images/${imgId}`);
+            document.getElementById('img-' + imgId)?.remove();
+            toast('Photo deleted');
+            if (!document.querySelectorAll('#photosList .photo-item').length) {
+                document.getElementById('photosList').innerHTML = '<div class="empty-state">No photos uploaded yet.</div>';
+            }
+        } catch (err) { toast(err.message, 'error'); }
+    }
+
+    function openLightbox(src) {
+        document.getElementById('lightboxImg').src = src;
+        document.getElementById('lightbox').classList.remove('hidden');
+    }
+
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.add('hidden');
+        document.getElementById('lightboxImg').src = '';
+    }
+
+    // ============================================================
+    //  PUBLIC REGISTRATION FORM
+    // ============================================================
+    async function loadPublicForm(shareLink) {
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('publicFormPage').classList.remove('hidden');
+
+        try {
+            const form = await fetch(`/api/registration-forms/${shareLink}/public`).then(r => {
+                if (!r.ok) throw new Error('Form not found or no longer active');
+                return r.json();
+            });
+
+            document.getElementById('pfLoading').classList.add('hidden');
+            document.getElementById('pfFormName').textContent = form.form_name;
+            document.getElementById('pfFormDesc').textContent = form.form_description || '';
+            document.getElementById('pfSessionTitle').textContent = 'Training: ' + form.session_title;
+            document.getElementById('pfTrainerName').textContent = 'Trainer: ' + form.trainer_name;
+            document.getElementById('pfFormId').value = form.id;
+            document.getElementById('pfForm').classList.remove('hidden');
+        } catch (err) {
+            document.getElementById('pfLoading').classList.add('hidden');
+            document.getElementById('pfErrorMsg').textContent = err.message;
+            document.getElementById('pfError').classList.remove('hidden');
+        }
+    }
+
+    async function submitPublicForm(e) {
+        e.preventDefault();
+        const form = e.target;
+        const formId = document.getElementById('pfFormId').value;
+        const btn = document.getElementById('pfSubmitBtn');
+        const errDiv = document.getElementById('pfFormError');
+
+        btn.disabled = true;
+        btn.textContent = 'Submitting…';
+        errDiv.classList.add('hidden');
+
+        try {
+            await fetch(`/api/registration-forms/${formId}/submissions`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    full_name:       form.full_name.value.trim(),
+                    job_title:       form.job_title.value.trim(),
+                    health_facility: form.health_facility.value.trim(),
+                    region:          form.region.value.trim(),
+                    phone:           form.phone.value.trim(),
+                    email:           form.email.value.trim(),
+                }),
+            }).then(async r => {
+                const data = await r.json();
+                if (!r.ok) throw new Error(data.error || 'Submission failed');
+                return data;
+            });
+
+            document.getElementById('pfForm').classList.add('hidden');
+            document.getElementById('pfSuccess').classList.remove('hidden');
+        } catch (err) {
+            errDiv.textContent = err.message;
+            errDiv.classList.remove('hidden');
+            btn.disabled = false;
+            btn.textContent = 'Submit Registration';
+        }
+    }
+
+    // ============================================================
     //  AUTO-LOGIN ON PAGE LOAD
     // ============================================================
     window.addEventListener('DOMContentLoaded', async () => {
+        // Check if this is a public form URL: /form/<link>
+        const formMatch = window.location.pathname.match(/^\/form\/([a-z0-9]+)$/i);
+        if (formMatch) {
+            await loadPublicForm(formMatch[1]);
+            return;
+        }
+
         if (authToken && currentUser) {
             try {
                 await showDashboard();

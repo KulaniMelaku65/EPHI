@@ -20,6 +20,9 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import bcrypt
+from werkzeug.utils import secure_filename
+import uuid
+import mimetypes
 
 # Load environment variables from .env file
 load_dotenv()
@@ -59,6 +62,14 @@ app.config['SMTP_PORT'] = int(os.getenv('SMTP_PORT', '587'))
 app.config['SMTP_EMAIL'] = os.getenv('SMTP_EMAIL', '')
 app.config['SMTP_PASSWORD'] = os.getenv('SMTP_PASSWORD', '')
 
+# Upload configuration
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+ALLOWED_DOCUMENTS = {'pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'txt'}
+ALLOWED_IMAGES = {'jpg', 'jpeg', 'png', 'gif', 'webp'}
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB
+os.makedirs(os.path.join(UPLOAD_FOLDER, 'materials'), exist_ok=True)
+os.makedirs(os.path.join(UPLOAD_FOLDER, 'images'), exist_ok=True)
+
 # ============ DATABASE HELPERS ============
 
 def get_db():
@@ -67,6 +78,36 @@ def get_db():
     conn = sqlite3.connect(app.config['DATABASE'])
     conn.row_factory = sqlite3.Row
     return conn
+
+def migrate_db():
+    db = get_db()
+    if not db:
+        return
+    db.executescript('''
+        CREATE TABLE IF NOT EXISTS training_materials (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id INTEGER NOT NULL,
+            original_name TEXT NOT NULL,
+            stored_name TEXT NOT NULL,
+            file_type TEXT NOT NULL,
+            file_size INTEGER,
+            description TEXT,
+            uploaded_by INTEGER NOT NULL,
+            uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS training_images (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id INTEGER NOT NULL,
+            original_name TEXT NOT NULL,
+            stored_name TEXT NOT NULL,
+            caption TEXT,
+            uploaded_by INTEGER NOT NULL,
+            uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    ''')
+    db.commit()
+
+migrate_db()
 
 # ============ AUTH DECORATORS ============
 
@@ -853,28 +894,80 @@ def review_form_submission(form_id, sub_id):
         return jsonify({'error': 'approval_status must be "approved" or "rejected"'}), 400
 
     db = get_db()
-    form = db.execute('SELECT trainer_id FROM registration_forms WHERE id=?', (form_id,)).fetchone()
+    form = db.execute(
+        'SELECT trainer_id, session_id FROM registration_forms WHERE id=?', (form_id,)
+    ).fetchone()
     if not form:
         return jsonify({'error': 'Form not found'}), 404
 
     if request.user['role'] != 'admin' and request.user['id'] != form['trainer_id']:
         return jsonify({'error': 'Unauthorized'}), 403
 
-    submission = db.execute(
-        'SELECT id FROM registration_form_submissions WHERE id=? AND form_id=?',
+    sub = db.execute(
+        'SELECT * FROM registration_form_submissions WHERE id=? AND form_id=?',
         (sub_id, form_id)
     ).fetchone()
-    if not submission:
+    if not sub:
         return jsonify({'error': 'Submission not found'}), 404
 
     db.execute('''
         UPDATE registration_form_submissions
         SET approval_status=?, rejection_reason=?, reviewed_by=?, reviewed_at=CURRENT_TIMESTAMP
         WHERE id=?
-    ''', (data['approval_status'], data.get('rejection_reason', None), request.user['id'], sub_id))
+    ''', (data['approval_status'], data.get('rejection_reason'), request.user['id'], sub_id))
     db.commit()
 
-    return jsonify({'message': f'Submission {data["approval_status"]} successfully'})
+    response = {'message': f'Submission {data["approval_status"]} successfully'}
+
+    if data['approval_status'] == 'approved':
+        email = sub['email'].strip().lower()
+
+        # Create user account if they don't already exist
+        existing = db.execute('SELECT id FROM users WHERE email=?', (email,)).fetchone()
+        if existing:
+            user_id = existing['id']
+            account_created = False
+        else:
+            temp_password = generate_token(10)
+            password_hash = hash_password(temp_password)
+            cursor = db.execute(
+                '''INSERT INTO users (email, password_hash, full_name, role, phone, position, region, is_verified)
+                   VALUES (?, ?, ?, 'trainee', ?, ?, ?, 1)''',
+                (email, password_hash, sub['full_name'], sub['phone'],
+                 sub['job_title'], sub['region'])
+            )
+            db.commit()
+            user_id = cursor.lastrowid
+            account_created = True
+
+            welcome_body = f"""
+            <h2>Welcome to EPHI Training System</h2>
+            <p>Dear {sub['full_name']},</p>
+            <p>Your training registration has been approved. An account has been created for you.</p>
+            <p><strong>Login Email:</strong> {email}</p>
+            <p><strong>Temporary Password:</strong> <code style="font-size:18px;letter-spacing:2px">{temp_password}</code></p>
+            <p>Please log in and change your password after your first sign-in.</p>
+            """
+            sent, _ = send_email(email, 'Your EPHI Training Account & Approval', welcome_body)
+            response['account_created'] = True
+            if not sent:
+                response['demo_password'] = temp_password
+                response['demo_note'] = 'Email not configured. Share this temporary password with the trainee.'
+
+        # Register for the session (skip if already registered)
+        existing_reg = db.execute(
+            'SELECT id FROM training_registrations WHERE session_id=? AND trainee_id=?',
+            (form['session_id'], user_id)
+        ).fetchone()
+        if not existing_reg:
+            db.execute(
+                'INSERT INTO training_registrations (session_id, trainee_id) VALUES (?,?)',
+                (form['session_id'], user_id)
+            )
+            db.commit()
+            response['registered_for_session'] = True
+
+    return jsonify(response)
 
 @app.route('/api/registration-forms/<form_link>/public', methods=['GET'])
 def get_public_form(form_link):
@@ -1189,6 +1282,153 @@ def set_security_headers(response):
 
     return response
 
+# ============ TRAINING MATERIALS ENDPOINTS ============
+
+def _token_from_request():
+    token = request.headers.get('Authorization', '') or request.args.get('token', '')
+    return token.replace('Bearer ', '')
+
+def _decode_token(token_str):
+    return jwt.decode(token_str, app.config['SECRET_KEY'], algorithms=['HS256'])
+
+@app.route('/api/sessions/<int:session_id>/materials', methods=['GET'])
+@token_required
+def list_materials(session_id):
+    db = get_db()
+    rows = db.execute('''
+        SELECT m.*, u.full_name as uploader_name
+        FROM training_materials m JOIN users u ON m.uploaded_by = u.id
+        WHERE m.session_id = ? ORDER BY m.uploaded_at DESC
+    ''', (session_id,)).fetchall()
+    return jsonify([dict(r) for r in rows])
+
+@app.route('/api/sessions/<int:session_id>/materials', methods=['POST'])
+@token_required
+@role_required(['admin', 'trainer'])
+def upload_material(session_id):
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+    file = request.files['file']
+    if not file.filename:
+        return jsonify({'error': 'No file selected'}), 400
+    ext = file.filename.rsplit('.', 1)[-1].lower() if '.' in file.filename else ''
+    if ext not in ALLOWED_DOCUMENTS:
+        return jsonify({'error': f'File type not allowed. Allowed: {", ".join(sorted(ALLOWED_DOCUMENTS))}'}), 400
+    original_name = secure_filename(file.filename)
+    stored_name = f'{uuid.uuid4().hex}.{ext}'
+    save_path = os.path.join(UPLOAD_FOLDER, 'materials', stored_name)
+    file.save(save_path)
+    db = get_db()
+    cursor = db.execute(
+        'INSERT INTO training_materials (session_id, original_name, stored_name, file_type, file_size, description, uploaded_by) VALUES (?,?,?,?,?,?,?)',
+        (session_id, original_name, stored_name, ext, os.path.getsize(save_path),
+         request.form.get('description', ''), request.user['id'])
+    )
+    db.commit()
+    return jsonify({'id': cursor.lastrowid, 'message': 'Material uploaded successfully'}), 201
+
+@app.route('/api/materials/<int:mat_id>/download', methods=['GET'])
+def download_material(mat_id):
+    try:
+        data = _decode_token(_token_from_request())
+    except Exception:
+        return jsonify({'error': 'Authentication required'}), 401
+    db = get_db()
+    mat = db.execute('SELECT * FROM training_materials WHERE id=?', (mat_id,)).fetchone()
+    if not mat:
+        return jsonify({'error': 'File not found'}), 404
+    file_path = os.path.join(UPLOAD_FOLDER, 'materials', mat['stored_name'])
+    if not os.path.exists(file_path):
+        return jsonify({'error': 'File not found on disk'}), 404
+    return send_file(file_path, as_attachment=True, download_name=mat['original_name'])
+
+@app.route('/api/materials/<int:mat_id>', methods=['DELETE'])
+@token_required
+@role_required(['admin', 'trainer'])
+def delete_material(mat_id):
+    db = get_db()
+    mat = db.execute('SELECT * FROM training_materials WHERE id=?', (mat_id,)).fetchone()
+    if not mat:
+        return jsonify({'error': 'File not found'}), 404
+    if request.user['role'] != 'admin' and mat['uploaded_by'] != request.user['id']:
+        return jsonify({'error': 'Unauthorized'}), 403
+    file_path = os.path.join(UPLOAD_FOLDER, 'materials', mat['stored_name'])
+    if os.path.exists(file_path):
+        os.remove(file_path)
+    db.execute('DELETE FROM training_materials WHERE id=?', (mat_id,))
+    db.commit()
+    return jsonify({'message': 'Material deleted'})
+
+# ============ TRAINING IMAGES ENDPOINTS ============
+
+@app.route('/api/sessions/<int:session_id>/images', methods=['GET'])
+@token_required
+def list_images(session_id):
+    db = get_db()
+    rows = db.execute('''
+        SELECT i.*, u.full_name as uploader_name
+        FROM training_images i JOIN users u ON i.uploaded_by = u.id
+        WHERE i.session_id = ? ORDER BY i.uploaded_at ASC
+    ''', (session_id,)).fetchall()
+    return jsonify([dict(r) for r in rows])
+
+@app.route('/api/sessions/<int:session_id>/images', methods=['POST'])
+@token_required
+@role_required(['admin', 'trainer'])
+def upload_image(session_id):
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+    file = request.files['file']
+    if not file.filename:
+        return jsonify({'error': 'No file selected'}), 400
+    ext = file.filename.rsplit('.', 1)[-1].lower() if '.' in file.filename else ''
+    if ext not in ALLOWED_IMAGES:
+        return jsonify({'error': f'Image type not allowed. Allowed: {", ".join(sorted(ALLOWED_IMAGES))}'}), 400
+    original_name = secure_filename(file.filename)
+    stored_name = f'{uuid.uuid4().hex}.{ext}'
+    save_path = os.path.join(UPLOAD_FOLDER, 'images', stored_name)
+    file.save(save_path)
+    db = get_db()
+    cursor = db.execute(
+        'INSERT INTO training_images (session_id, original_name, stored_name, caption, uploaded_by) VALUES (?,?,?,?,?)',
+        (session_id, original_name, stored_name, request.form.get('caption', ''), request.user['id'])
+    )
+    db.commit()
+    return jsonify({'id': cursor.lastrowid, 'message': 'Image uploaded successfully'}), 201
+
+@app.route('/api/images/<int:img_id>/view', methods=['GET'])
+def view_image(img_id):
+    try:
+        _decode_token(_token_from_request())
+    except Exception:
+        return jsonify({'error': 'Authentication required'}), 401
+    db = get_db()
+    img = db.execute('SELECT * FROM training_images WHERE id=?', (img_id,)).fetchone()
+    if not img:
+        return jsonify({'error': 'Image not found'}), 404
+    file_path = os.path.join(UPLOAD_FOLDER, 'images', img['stored_name'])
+    if not os.path.exists(file_path):
+        return jsonify({'error': 'Image not found on disk'}), 404
+    mime = mimetypes.guess_type(img['stored_name'])[0] or 'image/jpeg'
+    return send_file(file_path, mimetype=mime)
+
+@app.route('/api/images/<int:img_id>', methods=['DELETE'])
+@token_required
+@role_required(['admin', 'trainer'])
+def delete_image(img_id):
+    db = get_db()
+    img = db.execute('SELECT * FROM training_images WHERE id=?', (img_id,)).fetchone()
+    if not img:
+        return jsonify({'error': 'Image not found'}), 404
+    if request.user['role'] != 'admin' and img['uploaded_by'] != request.user['id']:
+        return jsonify({'error': 'Unauthorized'}), 403
+    file_path = os.path.join(UPLOAD_FOLDER, 'images', img['stored_name'])
+    if os.path.exists(file_path):
+        os.remove(file_path)
+    db.execute('DELETE FROM training_images WHERE id=?', (img_id,))
+    db.commit()
+    return jsonify({'message': 'Image deleted'})
+
 # ============ STATIC FILES ============
 
 @app.route('/logo.png')
@@ -1201,7 +1441,8 @@ def serve_logo():
 # ============ MAIN ROUTE ============
 
 @app.route('/')
-def index():
+@app.route('/form/<path:form_link>')
+def index(form_link=None):
     html_path = os.path.join(BASE_DIR, 'complete-demo.html')
     if os.path.exists(html_path):
         with open(html_path, 'r', encoding='utf-8') as f:
